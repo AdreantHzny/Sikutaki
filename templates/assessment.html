@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Asesmen Kesehatan Holistik - Sikutaki.com</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-[#0b1329] text-gray-100 min-h-screen font-sans">
+    
+    <!-- Header -->
+    <header class="border-b border-gray-800 bg-[#131e3a] px-6 py-4 flex justify-between items-center">
+        <div class="flex items-center space-x-3">
+            <div class="w-8 h-8 rounded-full bg-emerald-500 flex items-center justify-center font-bold text-[#0b1329]">S</div>
+            <h1 class="text-xl font-bold tracking-wide">Sikutaki<span class="text-emerald-400">.com Asesmen</span></h1>
+        </div>
+        <div class="flex items-center space-x-4">
+            <span class="text-xs text-gray-300">Halo, <strong class="text-emerald-400">{{ username }}</strong></span>
+            <a href="/" class="text-xs bg-gray-800 hover:bg-gray-700 text-gray-300 px-3 py-1.5 rounded-xl border border-gray-700 transition">Kembali ke Dashboard</a>
+        </div>
+    </header>
+
+    <!-- Form Container -->
+    <main class="max-w-3xl mx-auto p-6 mt-6">
+        <div class="bg-[#131e3a] p-8 rounded-2xl border border-gray-800 shadow-xl">
+            <h2 class="text-xl font-bold mb-2">Pusat Asesmen Multi-Dimensi Sikutaki</h2>
+            <p class="text-xs text-gray-400 mb-6">Masukkan data kondisi fisik, pola istirahat, dan tingkat stres Anda. Sistem Multi-Agent AI kami akan menganalisis korelasi psikosomatik tubuh dan pikiran Anda.</p>
+            
+            {% if error %}
+            <div class="bg-red-900/50 text-red-300 p-3 rounded-xl text-xs mb-4 border border-red-800">{{ error }}</div>
+            {% endif %}
+
+            <form method="POST" class="space-y-6">
+                <div>
+                    <label class="block text-xs font-medium text-gray-300 mb-2">1. Keluhan Fisik atau Organ yang Dirasakan Saat Ini</label>
+                    <textarea name="physical_complaint" rows="3" required placeholder="Contoh: Sering merasa kembung, asam lambung naik, atau tegang di area leher dan pundak..."
+                              class="w-full bg-gray-900 border border-gray-700 rounded-xl p-3 text-sm text-gray-100 focus:outline-none focus:border-emerald-400"></textarea>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-medium text-gray-300 mb-2">2. Tingkat Stres / Kecemasan (Skala 1 - 10)</label>
+                        <input type="number" name="stress_level" min="1" max="10" value="5" required 
+                               class="w-full bg-gray-900 border border-gray-700 rounded-xl p-3 text-sm text-gray-100 focus:outline-none focus:border-emerald-400">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-gray-300 mb-2">3. Rata-rata Durasi Tidur per Malam (Jam)</label>
+                        <input type="number" name="sleep_hours" min="1" max="12" value="6" required 
+                               class="w-full bg-gray-900 border border-gray-700 rounded-xl p-3 text-sm text-gray-100 focus:outline-none focus:border-emerald-400">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-medium text-gray-300 mb-2">4. Unggah Foto/Scan Mandiri (Opsional - Simulasi AI Computer Vision)</label>
+                    <input type="file" accept="image/*" class="block w-full text-xs text-gray-400 file:mr-3 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-emerald-500 file:text-[#0b1329] hover:file:opacity-90 cursor-pointer border border-gray-700 rounded-xl bg-gray-900/50 p-1">
+                </div>
+
+                <button type="submit" class="w-full bg-emerald-500 text-[#0b1329] font-bold py-3 rounded-xl text-sm hover:bg-emerald-400 transition shadow-lg shadow-emerald-500/10">
+                    Jalankan Analisis Multi-Agent Sikutaki
+                </button>
+            </form>
+        </div>
+    </main>
+</body>
+</html>

@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Daftar - Sikutaki.com</title>
+    <!-- Perhatikan baris ini: pastikan bersih tanpa tanda kurung siku [ ] -->
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-[#0b1329] text-gray-100 min-h-screen flex items-center justify-center font-sans px-4">
+    <div class="bg-[#131e3a] p-8 rounded-2xl border border-gray-800 shadow-2xl w-full max-w-md">
+        
+        <!-- Logo & Header -->
+        <div class="text-center mb-6">
+            <div class="w-12 h-12 bg-emerald-500 text-[#0b1329] rounded-2xl flex items-center justify-center font-bold text-xl mx-auto mb-3 shadow-lg shadow-emerald-500/20">S</div>
+            <h2 class="text-2xl font-bold tracking-wide">Buat Akun <span class="text-emerald-400">Sikutaki.com</span></h2>
+            <p class="text-xs text-gray-400 mt-1">Mulai perjalanan pemulihan kesehatan holistik Anda</p>
+        </div>
+        
+        <!-- Notifikasi Error -->
+        {% if error %}
+        <div class="bg-red-900/50 text-red-300 p-3 rounded-xl text-xs mb-4 border border-red-800 flex items-center gap-2">
+            <span>⚠️</span> <span>{{ error }}</span>
+        </div>
+        {% endif %}
+
+        <!-- Form Register -->
+        <form method="POST" class="space-y-4">
+            <div>
+                <label class="block text-xs font-medium text-gray-300 mb-1.5">Nama Lengkap / Username</label>
+                <input type="text" name="username" required placeholder="Nama Anda" 
+                       class="w-full bg-gray-900/80 border border-gray-700 rounded-xl px-4 py-3 text-sm text-gray-100 placeholder-gray-500 focus:outline-none focus:border-emerald-400 transition">
+            </div>
+            <div>
+                <label class="block text-xs font-medium text-gray-300 mb-1.5">Email</label>
+                <input type="email" name="email" required placeholder="nama@email.com" 
+                       class="w-full bg-gray-900/80 border border-gray-700 rounded-xl px-4 py-3 text-sm text-gray-100 placeholder-gray-500 focus:outline-none focus:border-emerald-400 transition">
+            </div>
+            <div>
+                <label class="block text-xs font-medium text-gray-300 mb-1.5">Kata Sandi</label>
+                <input type="password" name="password" required placeholder="••••••••" 
+                       class="w-full bg-gray-900/80 border border-gray-700 rounded-xl px-4 py-3 text-sm text-gray-100 placeholder-gray-500 focus:outline-none focus:border-emerald-400 transition">
+            </div>
+            <button type="submit" 
+                    class="w-full bg-emerald-500 text-[#0b1329] font-bold py-3 rounded-xl text-sm hover:bg-emerald-400 transition shadow-lg shadow-emerald-500/10 mt-2">
+                Daftar Akun Baru
+            </button>
+        </form>
+        
+        <!-- Footer Link -->
+        <p class="text-xs text-center text-gray-400 mt-6">
+            Sudah punya akun? <a href="/login" class="text-emerald-400 font-medium hover:underline">Masuk di sini</a>
+        </p>
+    </div>
+</body>
+</html>

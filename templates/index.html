@@ -793,6 +793,14 @@
                             </div>
                         </div>
                         <div id="dynamicTodoList" class="space-y-2.5"></div>
+                        
+                        <!-- FORM TAMBAH TUGAS CUSTOM -->
+                        <form id="customTaskForm" onsubmit="addCustomTask(event)" class="flex gap-2 pt-3 border-t border-border/60">
+                            <input type="text" id="customTaskInput" placeholder="Tambahkan tugas harian custom..." class="flex-1 bg-muted text-xs px-3 py-2 rounded-xl border border-border text-foreground focus:outline-none focus:border-emeraldaccent">
+                            <button type="submit" class="bg-emeraldaccent text-slate-950 font-bold px-4 py-2 rounded-xl text-xs hover:opacity-90 transition shrink-0" data-i18n="addBtn">
+                                ➕ Tambah
+                            </button>
+                        </form>
                     </div>
 
                     <div class="bg-card border border-border rounded-2xl p-6 shadow-xl space-y-3">
@@ -1110,6 +1118,7 @@
                 hardDesc: "1 Bulan (Butuh 100% Normal)",
                 veryHardDesc: "3 Bulan (Butuh 100% Hard)",
                 answerBtn: "Jawab",
+                addBtn: "➕ Tambah",
                 todoTitle: "To-Do List Penanganan Kebiasaan Harian",
                 todoDesc: "Centang aktivitas harian yang berhasil Anda lakukan untuk memperbarui grafik keberhasilan secara real-time.",
                 successLabel: "Sukses",
@@ -1227,6 +1236,7 @@
                 hardDesc: "1 Month (Requires 100% Normal)",
                 veryHardDesc: "3 Months (Requires 100% Hard)",
                 answerBtn: "Answer",
+                addBtn: "➕ Add",
                 todoTitle: "Daily Habit Management To-Do List",
                 todoDesc: "Check off daily activities you successfully completed to update your success graph in real-time.",
                 successLabel: "Success",
@@ -1344,6 +1354,7 @@
                 hardDesc: "1 mes (Requiere 100% Normal)",
                 veryHardDesc: "3 meses (Requiere 100% Hard)",
                 answerBtn: "Responder",
+                addBtn: "➕ Añadir",
                 todoTitle: "Lista de Tareas Diarias de Hábitos",
                 todoDesc: "Marque las actividades diarias completadas para actualizar su gráfico en tiempo real.",
                 successLabel: "Éxito",
@@ -1461,6 +1472,7 @@
                 hardDesc: "1 mês (Requer 100% Normal)",
                 veryHardDesc: "3 meses (Requer 100% Hard)",
                 answerBtn: "Responder",
+                addBtn: "➕ Adicionar",
                 todoTitle: "Lista de Tarefas Diárias de Hábitos",
                 todoDesc: "Marque as atividades diárias concluídas para atualizar seu gráfico em tempo real.",
                 successLabel: "Sucesso",
@@ -1487,11 +1499,6 @@
                 proFeat2: "Uso de escaneamento único",
                 proFeat3: "Recomendações expandidas e análise de risco",
                 proFeat4: "Exportação de relatório em PDF",
-                planEliteSub: "Para profissionais com necessidades avançadas",
-                eliteFeat1: "Todos os 18 agentes de saúde IA",
-                eliteFeat2: "Uso de escaneamento único",
-                eliteFeat3: "Relatório de saúde holística completo",
-                eliteFeat4: "Exportação de relatório em PDF",
                 enterpriseTitle: "Enterprise — Personalizado",
                 enterpriseDesc: "Soluções personalizadas para melhorar a qualidade da força de trabalho, produtividade e desempenho dos negócios.",
                 entFeat1: "Solução personalizada para organizações",
@@ -1534,15 +1541,28 @@
         let capturedScanImages = [];
         let scanTimer = null;
 
-        // Active Plan State Variables
+        // --- ACTIVE PLAN: STATE & KONFIGURASI TAMBAHAN ---
+        const LEVEL_DAYS = { easy: 3, normal: 7, hard: 30, very_hard: 90 };
+        const LEVEL_UNLOCK_MAP = { normal: 'hard', hard: 'very_hard' };
+        const LEVEL_UNLOCK_THRESHOLD = 100;
+        const MAX_CUSTOM_TASK_LEN = 120;
+        const UNLOCK_BTN_STYLE = {
+            hard:      { id: 'btnLevelHard',     border: 'border-primary/50',     hover: 'hover:bg-primary/10',     color: 'text-primary',     title: '⚡ Hard',      desc: '1 Bulan (Terbuka!)' },
+            very_hard: { id: 'btnLevelVeryHard', border: 'border-destructive/50', hover: 'hover:bg-destructive/10', color: 'text-destructive', title: '🔥 Very Hard', desc: '3 Bulan (Terbuka!)' }
+        };
+
         let activePlanStep = 1;
-        let selectedLevel = null;
+        let selectedLevel = 'easy';
         let currentDayIndex = 1;
         let activePlanTasks = [];
         let dailyProgressScores = [];
         let activePlanChartInstance = null;
         let normalCompletedSuccess = false;
         let hardCompletedSuccess = false;
+        let taskIdSeq = 0;
+        let levelFinalized = false;
+
+        const getMaxDays = (level = selectedLevel) => LEVEL_DAYS[level] || 3;
 
         function switchView(viewName) {
             document.querySelectorAll('.view-panel').forEach(panel => panel.classList.add('hidden'));
@@ -2008,13 +2028,32 @@
             box.scrollTop = box.scrollHeight;
         }
 
-        function initActivePlanOnboarding() {
+        // --- UPGRADED DYNAMIC ONBOARDING DR. SIKU & ACTIVE PLAN ---
+        async function initActivePlanOnboarding() {
             activePlanStep = 1;
-            document.getElementById('planChatBox').innerHTML = '';
-            document.getElementById('readinessSelectionPanel').classList.add('hidden');
-            document.getElementById('levelSelectionPanel').classList.add('hidden');
-            document.getElementById('planChatForm').classList.remove('hidden');
-            appendPlanChat('dr_siku', "Halo! Saya Dr. Siku. Dari hasil skrining dan analisis kesehatan terakhir Anda, saya melihat ada beberapa keluhan yang sedang Anda rasakan.\n\nApakah saat ini Anda merasa leher pegal, kualitas tidur berkurang, atau sering merasa cemas/stres saat beraktivitas?");
+            const planChatBox = document.getElementById('planChatBox');
+            if (planChatBox) planChatBox.innerHTML = '';
+            
+            const readinessPanel = document.getElementById('readinessSelectionPanel');
+            const levelPanel = document.getElementById('levelSelectionPanel');
+            const chatForm = document.getElementById('planChatForm');
+            
+            if (readinessPanel) readinessPanel.classList.add('hidden');
+            if (levelPanel) levelPanel.classList.add('hidden');
+            if (chatForm) chatForm.classList.remove('hidden');
+
+            try {
+                const res = await fetch('/api/companion/chat', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ message: "Halo Dr. Siku, berikan sapaan pembuka dan ulas ringkas keluhan aktual saya dari data skrining medis terakhir.", history: [] })
+                });
+                const data = await res.json();
+                const welcomeMsg = data.companion_response || "Halo! Saya Dr. Siku. Berdasarkan hasil skrining dan keluhan aktual Anda, mari kita susun rencana aksi harian untuk mengatasinya.";
+                appendPlanChat('dr_siku', welcomeMsg);
+            } catch (err) {
+                appendPlanChat('dr_siku', "Halo! Saya Dr. Siku. Mari kita kelola kebiasaan dan penanganan keluhan harian Anda.");
+            }
         }
 
         function appendPlanChat(sender, text) {
@@ -2039,9 +2078,10 @@
 
         const planChatFormEl = document.getElementById('planChatForm');
         if (planChatFormEl) {
-            planChatFormEl.addEventListener('submit', (e) => {
+            planChatFormEl.addEventListener('submit', async (e) => {
                 e.preventDefault();
                 const input = document.getElementById('planUserInput');
+                if (!input) return;
                 const msg = input.value.trim();
                 if (!msg) return;
 
@@ -2050,99 +2090,134 @@
 
                 if (activePlanStep === 1) {
                     activePlanStep = 2;
-                    setTimeout(() => {
-                        appendPlanChat('dr_siku', "Terima kasih sudah berbagi. Tenang ya, keluhan ini sangat umum terjadi dan tubuh Anda sebenarnya sedang memberikan sinyal bahwa ada kebiasaan harian yang perlu kita sesuaikan bersama.\n\nBisa ceritakan sedikit, kira-kira apa hal harian yang paling sering memicu keluhan tersebut? Apakah sering menatap layar tanpa jeda, begadang, atau kurang minum?");
-                    }, 800);
+                    try {
+                        const res = await fetch('/api/companion/chat', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ message: msg, history: [{role: 'user', content: msg}] })
+                        });
+                        const data = await res.json();
+                        appendPlanChat('dr_siku', data.companion_response || "Terima kasih atas informasinya. Mari kita tentukan komitmen langkah penanganan yang tepat.");
+                    } catch (err) {
+                        appendPlanChat('dr_siku', "Terima kasih. Mari kita lanjutkan ke tahap komitmen program.");
+                    }
                 } else if (activePlanStep === 2) {
                     activePlanStep = 3;
                     setTimeout(() => {
-                        appendPlanChat('dr_siku', "Saya sangat memahami kondisi Anda. Perlu kita ketahui bersama, kesehatan fisik memiliki ikatan yang sangat erat dengan kondisi psikologis dan mental seseorang.\n\nPenanganan terbaik adalah merubah kebiasaan buruk secara bertahap. Apakah Anda siap dan berkomitmen untuk memulai program perubahan kebiasaan ini?");
-                        
-                        document.getElementById('readinessSelectionPanel').classList.remove('hidden');
-                        document.getElementById('planChatForm').classList.add('hidden');
+                        appendPlanChat('dr_siku', "Saya memahami kondisi Anda. Penanganan yang konsisten adalah kunci utama pemulihan.\n\nApakah Anda siap dan berkomitmen untuk menjalankan program Active Plan ini?");
+                        const readinessPanel = document.getElementById('readinessSelectionPanel');
+                        const chatForm = document.getElementById('planChatForm');
+                        if (readinessPanel) readinessPanel.classList.remove('hidden');
+                        if (chatForm) chatForm.classList.add('hidden');
                     }, 800);
                 }
             });
         }
 
         function handleReadinessChoice(choice) {
-            document.getElementById('readinessSelectionPanel').classList.add('hidden');
+            const readinessPanel = document.getElementById('readinessSelectionPanel');
+            if (readinessPanel) readinessPanel.classList.add('hidden');
 
             if (choice === 'siap') {
                 appendPlanChat('user', "🚀 Ya, saya siap & berkomitmen untuk memulai!");
                 activePlanStep = 4;
                 setTimeout(() => {
-                    appendPlanChat('dr_siku', "Luar biasa! Saya sangat bangga dengan kesiapan Anda. Mari kita mulai komitmen ini.\n\nSilakan klik salah satu level tantangan Active Plan di bawah ini untuk memulai:");
-                    document.getElementById('levelSelectionPanel').classList.remove('hidden');
+                    appendPlanChat('dr_siku', "Luar biasa! Silakan pilih level tantangan Active Plan Anda di bawah ini:");
+                    const levelPanel = document.getElementById('levelSelectionPanel');
+                    if (levelPanel) levelPanel.classList.remove('hidden');
                 }, 800);
             } else {
                 appendPlanChat('user', "⏳ Belum siap / nanti dulu.");
                 setTimeout(() => {
-                    appendPlanChat('dr_siku', "Tidak apa-apa, sangat wajar jika Anda masih merasa butuh waktu. Perubahan kebiasaan memang melatih kesiapan mental. Saya ada di sini mendampingi Anda tanpa tekanan.\n\nJika Anda sudah siap, silakan klik tombol di bawah ini ya:");
-                    document.getElementById('readinessSelectionPanel').classList.remove('hidden');
+                    appendPlanChat('dr_siku', "Tidak apa-apa, ambil waktu Anda. Kapanpun Anda siap, sistem akan siap mendampingi.");
+                    if (readinessPanel) readinessPanel.classList.remove('hidden');
                 }, 800);
             }
         }
 
-        function selectChallengeLevel(level) {
-            selectedLevel = level;
-            document.getElementById('activePlanOnboarding').classList.add('hidden');
-            document.getElementById('activePlanRunning').classList.remove('hidden');
-            
-            generateTodoListForLevel(level, 1);
-            initActivePlanChart(level);
+        // ---------- HELPER PERHITUNGAN & HEADER ACTIVE PLAN ----------
+        function calcCurrentPercentage() {
+            const total = activePlanTasks.length;
+            if (total === 0) return 0;
+            return Math.round((activePlanTasks.filter(t => t.completed).length / total) * 100);
         }
 
-        function simulateNextDay() {
-            const maxDays = selectedLevel === 'easy' ? 3 : (selectedLevel === 'normal' ? 7 : (selectedLevel === 'hard' ? 30 : 90));
-            if (currentDayIndex < maxDays) {
-                currentDayIndex++;
-                generateTodoListForLevel(selectedLevel, currentDayIndex);
-            } else {
-                alert("Sudah mencapai hari terakhir (" + maxDays + " hari) untuk level " + selectedLevel.toUpperCase() + "!");
-            }
+        function calcOverallCompliance() {
+            const maxDays = getMaxDays();
+            let sum = 0;
+            for (let i = 0; i < maxDays; i++) sum += dailyProgressScores[i] || 0;
+            return sum / maxDays;
         }
 
-        function generateTodoListForLevel(level, day) {
-            currentDayIndex = day;
-            let taskCount = 2;
-            let totalDays = 3;
+        function updateLevelHeader() {
+            const maxDays = getMaxDays();
+            const tag = document.getElementById('runningLevelTag');
+            const streak = document.getElementById('streakCounter');
+            if (tag) tag.innerText = `PROGRAM LEVEL ${selectedLevel.toUpperCase().replace('_', ' ')} (HARI ${currentDayIndex}/${maxDays})`;
+            if (streak) streak.innerText = `🔥 Hari ke-${currentDayIndex} dari ${maxDays}`;
+        }
 
-            if (level === 'easy') {
-                totalDays = 3;
-                if (day === 1) taskCount = 2;
-                else if (day === 2) taskCount = 3;
-                else taskCount = 4;
-            } else if (level === 'normal') {
-                totalDays = 7;
-                if (day <= 3) taskCount = 3;
-                else if (day <= 5) taskCount = 5;
-                else taskCount = 6;
-            } else {
-                totalDays = (level === 'hard' ? 30 : 90);
-                taskCount = 6;
-            }
-
-            document.getElementById('runningLevelTag').innerText = `PROGRAM LEVEL ${level.toUpperCase()} (HARI ${day}/${totalDays})`;
-            document.getElementById('streakCounter').innerText = `🔥 Hari ke-${day} dari ${totalDays}`;
-
-            const sampleTasks = [
-                "Melakukan peregangan leher & bahu selama 3 menit setiap 2 jam.",
-                "Minum 1 gelas air putih hangat saat bangun tidur.",
-                "Mematikan layar HP/Laptop 30 menit sebelum tidur.",
-                "Jalan kaki santai 15 menit di pagi atau sore hari.",
-                "Melatih pernapasan dalam (4-7-8 method) selama 5 menit.",
-                "Mencatat 1 hal positif hari ini untuk mengurangi kecemasan."
+        function generateDynamicTodoListFromComplaints() {
+            activePlanTasks = [
+                { id: ++taskIdSeq, text: "Memantau perkembangan keluhan utama secara berkala sesuai hasil skrining.", completed: false, custom: false },
+                { id: ++taskIdSeq, text: "Menjaga hidrasi harian dan pola nutrisi yang disarankan.", completed: false, custom: false },
+                { id: ++taskIdSeq, text: "Melakukan istirahat teratur dan manajemen stres harian.", completed: false, custom: false }
             ];
+        }
 
+        // ---------- MULAI LEVEL TANTANGAN ----------
+        async function selectChallengeLevel(level) {
+            selectedLevel = level;
+            levelFinalized = false;
+            currentDayIndex = 1;
             activePlanTasks = [];
-            for (let i = 0; i < taskCount; i++) {
-                activePlanTasks.push({ id: i, text: sampleTasks[i % sampleTasks.length], completed: false });
+            
+            document.getElementById('activePlanOnboarding')?.classList.add('hidden');
+            document.getElementById('activePlanRunning')?.classList.remove('hidden');
+            updateLevelHeader();
+            
+            const listEl = document.getElementById('dynamicTodoList');
+            if (listEl) listEl.innerHTML = '';
+
+            try {
+                const res = await fetch('/api/screening/step6_action_plan', { method: 'POST' });
+                const data = await res.json();
+                if (data.status === 'success' && data.tasks && data.tasks.length > 0) {
+                    activePlanTasks = data.tasks.map(tText => ({ id: ++taskIdSeq, text: tText, completed: false, custom: false }));
+                } else {
+                    generateDynamicTodoListFromComplaints();
+                }
+            } catch (err) {
+                generateDynamicTodoListFromComplaints();
             }
 
+            initActivePlanChart(level);
             renderTodoListUI();
         }
 
+        // ---------- PERGANTIAN HARI & SIMULASI ----------
+        function advanceDay() {
+            if (levelFinalized) return;
+
+            dailyProgressScores[currentDayIndex - 1] = calcCurrentPercentage();
+
+            if (currentDayIndex >= getMaxDays()) {
+                finalizeLevel();
+                return;
+            }
+
+            currentDayIndex++;
+            activePlanTasks.forEach(t => { t.completed = false; });
+            dailyProgressScores[currentDayIndex - 1] = 0;
+            updateLevelHeader();
+            renderTodoListUI();
+        }
+
+        function simulateNextDay() {
+            advanceDay();
+        }
+
+        // ---------- RENDER TO-DO LIST (AMAN DARI INJEKSI HTML) ----------
         function renderTodoListUI() {
             const container = document.getElementById('dynamicTodoList');
             if (!container) return;
@@ -2151,12 +2226,32 @@
             activePlanTasks.forEach(task => {
                 const item = document.createElement('div');
                 item.className = "flex items-center justify-between p-3.5 bg-muted/50 border border-border rounded-xl transition hover:border-emerald-500/30";
-                item.innerHTML = `
-                    <label class="flex items-center gap-3 cursor-pointer min-w-0 flex-1">
-                        <input type="checkbox" ${task.completed ? 'checked' : ''} onchange="toggleTaskCheck(${task.id})" class="w-4 h-4 rounded text-emeraldaccent bg-card border-border focus:ring-emeraldaccent">
-                        <span class="text-xs font-medium text-foreground ${task.completed ? 'line-through text-muted-foreground' : ''}">${task.text}</span>
-                    </label>
-                `;
+
+                const label = document.createElement('label');
+                label.className = "flex items-center gap-3 cursor-pointer min-w-0 flex-1";
+
+                const checkbox = document.createElement('input');
+                checkbox.type = 'checkbox';
+                checkbox.checked = task.completed;
+                checkbox.className = "w-4 h-4 rounded text-emeraldaccent bg-card border-border focus:ring-emeraldaccent";
+                checkbox.addEventListener('change', () => toggleTaskCheck(task.id));
+
+                const text = document.createElement('span');
+                text.className = "text-xs font-medium text-foreground" + (task.completed ? " line-through text-muted-foreground" : "");
+                text.textContent = task.text;
+
+                label.append(checkbox, text);
+                item.appendChild(label);
+
+                if (task.custom) {
+                    const del = document.createElement('button');
+                    del.type = 'button';
+                    del.title = 'Hapus tugas pribadi';
+                    del.className = "ml-2 shrink-0 px-1.5 text-xs text-muted-foreground hover:text-destructive font-bold";
+                    del.textContent = '✕';
+                    del.addEventListener('click', () => removeCustomTask(task.id));
+                    item.appendChild(del);
+                }
                 container.appendChild(item);
             });
 
@@ -2171,10 +2266,27 @@
             renderTodoListUI();
         }
 
+        // ---------- TUGAS CUSTOM ----------
+        function addCustomTask(e) {
+            if (e) e.preventDefault();
+            const input = document.getElementById('customTaskInput');
+            if (!input || levelFinalized) return;
+            const text = input.value.trim().slice(0, MAX_CUSTOM_TASK_LEN);
+            if (!text) return;
+            
+            activePlanTasks.push({ id: ++taskIdSeq, text, completed: false, custom: true });
+            input.value = '';
+            renderTodoListUI();
+        }
+
+        function removeCustomTask(id) {
+            activePlanTasks = activePlanTasks.filter(t => !(t.id === id && t.custom));
+            renderTodoListUI();
+        }
+
+        // ---------- PROGRES & GRAFIK (HANYA HARI BERJALAN YANG DITULIS) ----------
         function updateProgressAndChart() {
-            const completedCount = activePlanTasks.filter(t => t.completed).length;
-            const totalCount = activePlanTasks.length;
-            const percentage = totalCount > 0 ? Math.round((completedCount / totalCount) * 100) : 0;
+            const percentage = calcCurrentPercentage();
 
             const percentageEl = document.getElementById('progressPercentageText');
             if (percentageEl) {
@@ -2187,50 +2299,71 @@
                 activePlanChartInstance.data.datasets[0].data = dailyProgressScores;
                 activePlanChartInstance.update();
             }
+            checkLevelCompletion();
+        }
 
-            const maxDays = selectedLevel === 'easy' ? 3 : (selectedLevel === 'normal' ? 7 : (selectedLevel === 'hard' ? 30 : 90));
-
-            if (percentage === 100 && currentDayIndex === maxDays) {
-                setTimeout(() => {
-                    alert("🎉 Selamat! Anda telah menaklukkan tantangan level ini dengan sukses 100%!");
-                    
-                    if (selectedLevel === 'normal') {
-                        normalCompletedSuccess = true;
-                        const btnHard = document.getElementById('btnLevelHard');
-                        if (btnHard) {
-                            btnHard.disabled = false;
-                            btnHard.classList.remove('opacity-60', 'cursor-not-allowed', 'bg-muted/80');
-                            btnHard.classList.add('bg-card', 'border-primary/50', 'hover:bg-primary/10');
-                            btnHard.innerHTML = `<span class="block text-xs font-extrabold text-primary">⚡ Hard</span><span class="block text-[10px] text-muted-foreground mt-0.5">1 Bulan (Terbuka!)</span>`;
-                            btnHard.onclick = () => selectChallengeLevel('hard');
-                        }
-                    } else if (selectedLevel === 'hard') {
-                        hardCompletedSuccess = true;
-                        const btnVeryHard = document.getElementById('btnLevelVeryHard');
-                        if (btnVeryHard) {
-                            btnVeryHard.disabled = false;
-                            btnVeryHard.classList.remove('opacity-60', 'cursor-not-allowed', 'bg-muted/80');
-                            btnVeryHard.classList.add('bg-card', 'border-destructive/50', 'hover:bg-destructive/10');
-                            btnVeryHard.innerHTML = `<span class="block text-xs font-extrabold text-destructive">🔥 Very Hard</span><span class="block text-[10px] text-muted-foreground mt-0.5">3 Bulan (Terbuka!)</span>`;
-                            btnVeryHard.onclick = () => selectChallengeLevel('very_hard');
-                        }
-                    }
-
-                    document.getElementById('activePlanRunning').classList.add('hidden');
-                    document.getElementById('activePlanOnboarding').classList.remove('hidden');
-                    appendPlanChat('dr_siku', `🎉 Luar Biasa! Sambutan spesial dari saya: Anda telah menyelesaikan level ${selectedLevel.toUpperCase()} dengan 100% kepatuhan!\n\nBagaimana perubahan positif yang Anda rasakan sekarang? Level tantangan berikutnya telah terbuka untuk menguji konsistensi Anda.`);
-                }, 600);
+        // ---------- PENYELESAIAN LEVEL & UNLOCK OTOMATIS ----------
+        function checkLevelCompletion() {
+            if (levelFinalized || currentDayIndex !== getMaxDays()) return;
+            if (calcCurrentPercentage() !== 100) return;
+            if (calcOverallCompliance() >= LEVEL_UNLOCK_THRESHOLD) {
+                setTimeout(() => { if (calcCurrentPercentage() === 100) finalizeLevel(); }, 600);
             }
         }
 
+        function finalizeLevel() {
+            if (levelFinalized) return;
+            levelFinalized = true;
+
+            const level = selectedLevel;
+            const label = level.toUpperCase().replace('_', ' ');
+            const avg = Math.floor(calcOverallCompliance());
+            const passed = calcOverallCompliance() >= LEVEL_UNLOCK_THRESHOLD;
+            const nextLevel = LEVEL_UNLOCK_MAP[level];
+            let drMessage;
+
+            if (passed) {
+                alert("🎉 Selamat! Anda telah menaklukkan tantangan level ini dengan sukses 100%!");
+                if (level === 'normal') normalCompletedSuccess = true;
+                if (level === 'hard') hardCompletedSuccess = true;
+                if (nextLevel) unlockLevelButton(nextLevel);
+
+                const tail = nextLevel
+                    ? `Level tantangan berikutnya (${nextLevel.toUpperCase().replace('_', ' ')}) telah terbuka untuk menguji konsistensi Anda.`
+                    : (level === 'very_hard'
+                        ? 'Anda telah menamatkan seluruh level tantangan. Pencapaian yang luar biasa!'
+                        : 'Anda bisa melanjutkan ke level Normal untuk membangun konsistensi lebih panjang.');
+                drMessage = `🎉 Luar Biasa! Sambutan spesial dari saya: Anda telah menyelesaikan level ${label} dengan 100% kepatuhan!\n\nBagaimana perubahan positif yang Anda rasakan sekarang? ${tail}`;
+            } else {
+                alert(`Program level ${label} selesai. Rata-rata kepatuhan: ${avg}%.`);
+                const gateNote = nextLevel ? ` Level berikutnya baru terbuka jika kepatuhan mencapai ${LEVEL_UNLOCK_THRESHOLD}%.` : '';
+                drMessage = `Program level ${label} sudah selesai dengan rata-rata kepatuhan ${avg}%. Tidak apa-apa, konsistensi dibangun pelan-pelan.${gateNote}\n\nKapan pun Anda siap, kita bisa mengulang level ini bersama.`;
+            }
+
+            document.getElementById('activePlanRunning')?.classList.add('hidden');
+            document.getElementById('activePlanOnboarding')?.classList.remove('hidden');
+            appendPlanChat('dr_siku', drMessage);
+        }
+
+        function unlockLevelButton(levelKey) {
+            const s = UNLOCK_BTN_STYLE[levelKey];
+            const btn = s && document.getElementById(s.id);
+            if (!btn) return;
+            btn.disabled = false;
+            btn.classList.remove('opacity-60', 'cursor-not-allowed', 'bg-muted/80');
+            btn.classList.add('bg-card', s.border, s.hover);
+            btn.innerHTML = `<span class="block text-xs font-extrabold ${s.color}">${s.title}</span><span class="block text-[10px] text-muted-foreground mt-0.5">${s.desc}</span>`;
+            btn.onclick = () => selectChallengeLevel(levelKey);
+        }
+
         function initActivePlanChart(level) {
-            const totalDays = level === 'easy' ? 3 : (level === 'normal' ? 7 : (level === 'hard' ? 30 : 90));
+            const totalDays = getMaxDays(level);
             const labels = [];
             dailyProgressScores = [];
 
             for (let i = 1; i <= totalDays; i++) {
                 labels.push(`H${i}`);
-                dailyProgressScores.push(0);
+                dailyProgressScores.push(i === 1 ? 0 : null);
             }
 
             const canvasEl = document.getElementById('activePlanChart');
@@ -2250,7 +2383,8 @@
                         tension: 0.35,
                         fill: true,
                         pointBackgroundColor: '#10b981',
-                        pointRadius: 4
+                        pointRadius: 4,
+                        spanGaps: false
                     }]
                 },
                 options: {
@@ -2292,4 +2426,3 @@
     </script>
 </body>
 </html>
-```[cite: 25, 26, 27, 28, 29]

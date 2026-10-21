@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="id" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SIKUTAKI.AI — Memuat...</title>
+    <!-- Entry point: alihkan ke aplikasi Flask (route "/") -->
+    <meta http-equiv="refresh" content="0; url=/">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@600;800&display=swap" rel="stylesheet">
+    <style>
+        body {
+            margin: 0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 18px;
+            background: #050e18;
+            color: #e6f0ec;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+        .loader {
+            width: 46px; height: 46px;
+            border-radius: 50%;
+            border: 3px solid rgba(16,185,129,.2);
+            border-top-color: #10b981;
+            animation: spin 0.9s linear infinite;
+            box-shadow: 0 0 24px rgba(16,185,129,.35);
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        p { font-size: 12px; letter-spacing: .15em; text-transform: uppercase; opacity: .6; }
+        a { color: #10b981; font-weight: 800; text-decoration: none; }
+    </style>
+</head>
+<body>
+    <div class="loader"></div>
+    <p>Memuat SIKUTAKI.AI …</p>
+    <a href="/">Klik di sini jika tidak dialihkan otomatis</a>
+    <script>window.location.replace('/');</script>
+</body>
+</html>

@@ -61,7 +61,7 @@ class ScreeningSession(db.Model):
     voice_analysis = db.Column(db.Text)
     master_report = db.Column(db.Text)
     status = db.Column(db.String(50), default='completed')
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    created_at = db.Column(db.DateTime, default=datetime.now)  # waktu lokal server agar tanggal sesi sesuai waktu screening
 
 class WeeklyTask(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -73,7 +73,63 @@ class WeeklyTask(db.Model):
 with app.app_context():
     db.create_all()
 
-# --- RUTE AUTENTIKASI ---
+# --- RUTE LANDING PAGE, BLOG & AUTENTIKASI ---
+@app.route('/')
+def landing():
+    """Rute Landing Page Publik (Gaya Sikutaki.com + 17 Agen AI)"""
+    return render_template('landingpage.html')
+
+@app.route('/blog')
+def blog():
+    """Rute Halaman Blog Wawasan & Inspirasi Sikutaki"""
+    return render_template('blog.html')
+
+@app.route('/terapi-personal-adaptif-ai-online')
+def blog_detail_adaptif_ai():
+    """Rute Halaman Detail Artikel: Terapi Personal Adaptif AI Online Lebih Akurat"""
+    return render_template('blog_detail.html')
+
+@app.route('/terapi-digital-holistik')
+def blog_detail_terapi_digital():
+    """Rute Halaman Detail Artikel: Terapi Digital Holistik untuk Hidup Lebih Seimbang"""
+    return render_template('terapi_digital.html')
+
+@app.route('/analisis-psikologis-mental-ai-online')
+def blog_detail_analisis_psikologis():
+    """Rute Halaman Detail Artikel: Analisis Psikologis Mental AI Online Terbukti Akurat"""
+    return render_template('analisis_psikologis.html')
+
+@app.route('/alat-prediksi-kesehatan-kedepan')
+def blog_detail_prediksi_kesehatan():
+    """Rute Halaman Detail Artikel: Alat Prediksi Kesehatan Kedepan Berbasis AI"""
+    return render_template('prediksi_kesehatan.html')
+
+# --- 5 RUTE ARTIKEL BARU ---
+@app.route('/terapi-personal-adaptif-online')
+def blog_detail_adaptif_online():
+    """Rute Halaman Detail Artikel 1: Terapi Personal Adaptif Online Lebih Fleksibel"""
+    return render_template('terapi_personal_adaptif_online.html')
+
+@app.route('/aplikasi-scan-kesehatan-holistik')
+def blog_detail_scan_holistik():
+    """Rute Halaman Detail Artikel 2: Aplikasi Scan Kesehatan Holistik Berbasis AI"""
+    return render_template('aplikasi_scan_kesehatan_holistik.html')
+
+@app.route('/analisis-kesehatan-mental-komprehensif')
+def blog_detail_mental_komprehensif():
+    """Rute Halaman Detail Artikel 3: Analisis Kesehatan Mental Komprehensif Digital"""
+    return render_template('analisis_kesehatan_mental_komprehensif.html')
+
+@app.route('/analisis-kesehatan-fisik-mental-holistik')
+def blog_detail_fisik_mental_holistik():
+    """Rute Halaman Detail Artikel 4: Analisis Kesehatan Fisik & Mental Holistik Modern"""
+    return render_template('analisis_kesehatan_fisik_mental_holistik.html')
+
+@app.route('/pemantauan-kesehatan-online-ai')
+def blog_detail_pemantauan_online():
+    """Rute Halaman Detail Artikel 5: Pemantauan Kesehatan Online AI Real-Time"""
+    return render_template('pemantauan_kesehatan_online_ai.html')
+
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
@@ -106,17 +162,149 @@ def register():
 @app.route('/logout')
 def logout():
     session.clear()
-    return redirect(url_for('login'))
+    return redirect(url_for('landing'))
 
-@app.route('/')
+# --- HELPER: KALKULASI METRIK DARI DATA SCREENING AKTUAL ---
+MONTHS_ID_SHORT = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des']
+MONTHS_ID_FULL = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember']
+
+def calc_bmi(height, weight):
+    """Hitung BMI dari tinggi (cm) & berat (kg). Return float atau None."""
+    try:
+        if height and weight:
+            h_m = float(height) / 100.0
+            if h_m > 0:
+                return round(float(weight) / (h_m * h_m), 1)
+    except (ValueError, TypeError, ZeroDivisionError):
+        pass
+    return None
+
+def bmi_category(bmi):
+    if bmi is None: return None
+    if bmi < 18.5: return 'underweight'
+    if bmi < 25.0: return 'normal'
+    if bmi < 30.0: return 'overweight'
+    return 'obese'
+
+def bp_category(bp_str):
+    """Kategori tekanan darah: low / normal / elevated / high."""
+    try:
+        sys, dia = [int(x) for x in str(bp_str).split('/')]
+        if sys < 90 or dia < 60: return 'low'
+        if sys < 120 and dia < 80: return 'normal'
+        if sys < 140 and dia < 90: return 'elevated'
+        return 'high'
+    except (ValueError, AttributeError):
+        return None
+
+def stress_int(stress_str):
+    try:
+        return int(float(str(stress_str)))
+    except (ValueError, TypeError):
+        return None
+
+def session_flag(stress, bp_cat):
+    """Flag risiko sesi: ok / warn / high berdasarkan stres & tekanan darah."""
+    s = stress_int(stress)
+    if (s is not None and s >= 7) or bp_cat == 'high':
+        return 'high'
+    if (s is not None and s >= 5) or bp_cat in ('elevated', 'low'):
+        return 'warn'
+    return 'ok'
+
+def build_session_dict(scr, scan_number, has_plan):
+    """Serialisasi satu sesi screening untuk template & modal JS."""
+    bmi = calc_bmi(scr.height, scr.weight)
+    bp_cat = bp_category(scr.blood_pressure)
+    stress = stress_int(scr.stress_level)
+    dt = scr.created_at
+    return {
+        'id': scr.id,
+        'scan_number': scan_number,
+        'date_short': f"{dt.day} {MONTHS_ID_SHORT[dt.month-1]} {dt.year}",
+        'date_full': f"{dt.day} {MONTHS_ID_FULL[dt.month-1]} {dt.year}",
+        'date_iso': dt.strftime('%Y-%m-%d'),
+        'stress': stress,
+        'sleep': scr.sleep_hours,
+        'bp': scr.blood_pressure,
+        'bp_cat': bp_cat,
+        'bmi': bmi,
+        'bmi_cat': bmi_category(bmi),
+        'flag': session_flag(scr.stress_level, bp_cat),
+        'has_plan': has_plan,
+        'full_name': scr.full_name,
+        'age': scr.age,
+        'gender': scr.gender,
+        'height': scr.height,
+        'weight': scr.weight,
+        'complaints': scr.current_complaints,
+        'diseases': scr.diseases,
+        'exercise': scr.exercise_routine,
+        'master_report': scr.master_report,
+        'scan_report': scr.scan_report,
+    }
+
+def calc_scores(last):
+    """Skor indikatif 0-10 yang diturunkan murni dari input screening terakhir."""
+    if not last:
+        return None
+    stress = stress_int(last['stress'])
+    sleep = last['sleep']
+    bmi = last['bmi']
+    bp_cat = last['bp_cat']
+
+    # Skor fisik: kombinasi BMI & durasi tidur
+    bmi_score = {'normal': 10, 'overweight': 7, 'underweight': 7, 'obese': 4, None: 6}[last['bmi_cat']]
+    if sleep is None:
+        sleep_score = 6
+    elif sleep >= 7: sleep_score = 10
+    elif sleep >= 6: sleep_score = 8
+    elif sleep >= 5: sleep_score = 6
+    else: sleep_score = 4
+    physical = round((bmi_score + sleep_score) / 2, 1)
+
+    # Skor organ: berbasis kategori tekanan darah
+    organ = {'normal': 10, 'elevated': 7, 'low': 7, 'high': 4, None: 6}[bp_cat]
+
+    # Skor mental: invers level stres
+    mental = round(10 - stress, 1) if stress is not None else 6.0
+
+    overall = round((physical + organ + mental) / 3, 1)
+    return {'overall': overall, 'physical': physical, 'organ': organ, 'mental': mental}
+
+@app.route('/dashboard')
 def index():
+    """Rute Dashboard Aplikasi Utama Pengguna yang Telah Login"""
     if 'user_id' not in session:
         return redirect(url_for('login'))
     user_id = session['user_id']
-    total_scans = ScreeningSession.query.filter_by(user_id=user_id).count()
-    last_session = ScreeningSession.query.filter_by(user_id=user_id).order_by(ScreeningSession.created_at.desc()).first()
-    last_scan_date = last_session.created_at.strftime("%d %b %Y") if last_session else "Belum pernah"
-    return render_template('index.html', username=session.get('username'), total_scans=total_scans, last_scan_date=last_scan_date)
+
+    # Ambil seluruh sesi screening MILIK user ini saja (terbaru di atas)
+    user_sessions = ScreeningSession.query.filter_by(user_id=user_id)\
+        .order_by(ScreeningSession.created_at.desc()).all()
+    total_scans = len(user_sessions)
+    has_scanned = total_scans > 0
+
+    # Sesi yang sudah punya action plan
+    planned_ids = {t.session_id for t in WeeklyTask.query.all()}
+
+    sessions = []
+    for idx, scr in enumerate(user_sessions):
+        scan_number = total_scans - idx  # scan paling awal user = #1
+        sessions.append(build_session_dict(scr, scan_number, scr.id in planned_ids))
+
+    last = sessions[0] if sessions else None
+    scores = calc_scores(last)
+    last_scan_date = last['date_short'] if last else None
+
+    return render_template('index.html',
+                           username=session.get('username'),
+                           total_scans=total_scans,
+                           last_scan_date=last_scan_date,
+                           has_scanned=has_scanned,
+                           sessions=sessions,
+                           last=last,
+                           scores=scores)
 
 # --- RUTE SCANNER ---
 @app.route('/scanner')
@@ -189,6 +377,7 @@ def process_scan():
 # --- WIZARD TAHAP 1 - 6 (TERPADU DENGAN NAMA & UMUR) ---
 @app.route('/api/screening/step1_medical', methods=['POST'])
 def step1_medical():
+    global global_screening_context
     if 'user_id' not in session:
         return jsonify({'status': 'error', 'message': 'Unauthorized'}), 401
     data = request.get_json()
@@ -214,6 +403,7 @@ def step1_medical():
         db.session.add(new_session)
         db.session.commit()
         session['active_screening_id'] = new_session.id
+        global_screening_context = f"Pasien: {new_session.full_name}, Keluhan Utama: {new_session.current_complaints} (Durasi: {new_session.duration_complaints})"
         return jsonify({'status': 'success', 'session_id': new_session.id})
     except Exception as e:
         return jsonify({'status': 'error', 'message': str(e)}), 500
@@ -271,12 +461,12 @@ def step4_synthesize():
         return jsonify({'status': 'error', 'message': 'Sesi tidak ditemukan'}), 400
         
     prompt = f"""
-Sintesis data 17 agen AI Sikutaki:
-1. Data Medis & Keluhan: Nama: {scr.full_name}, Umur: {scr.age}, Keluhan: {scr.current_complaints} (Durasi: {scr.duration_complaints}), BB: {scr.weight}, TB: {scr.height}, TD: {scr.blood_pressure}, Stres: {scr.stress_level}
-2. Extracted Visual Scan 8-Step: {scr.scan_report}
-3. Voice Biomarker: {scr.voice_transcript}
+Sintesis data 17 agen AI Sikutaki berdasarkan keluhan AKTUAL pengguna berikut:
+1. Data Medis & Keluhan Utama: Nama: {scr.full_name}, Umur: {scr.age}, Keluhan: {scr.current_complaints} (Durasi: {scr.duration_complaints}), Riwayat: {scr.diseases}, BB: {scr.weight}, TB: {scr.height}, TD: {scr.blood_pressure}, Stres: {scr.stress_level}
+2. Extracted Visual Scan 8-Step: {scr.scan_report or 'Belum ada scan'}
+3. Voice Biomarker: {scr.voice_transcript or 'Belum ada catatan suara'}
 
-Buatkan Laporan Akhir Screening Kesehatan Holistik yang komprehensif, mencakup status fisik, kondisi otot/postur, dan profil stres emosional.
+PENTING: Buatkan Laporan Akhir Screening Kesehatan Holistik yang mendalam, mencakup status fisik, kondisi organ/metabolik, dan profil stres emosional yang HANYA berfokus dan bersumber langsung dari keluhan aktual di atas. Jangan berasumsi atau mengaitkan dengan keluhan lain yang tidak diinputkan.
 """
     try:
         response = client.chat.completions.create(
@@ -296,9 +486,25 @@ def step6_action_plan():
     if 'user_id' not in session:
         return jsonify({'status': 'error'}), 401
     active_id = session.get('active_screening_id')
-    scr = ScreeningSession.query.get(active_id)
+    scr = None
+    if active_id:
+        scr = ScreeningSession.query.get(active_id)
+    if not scr:
+        scr = ScreeningSession.query.filter_by(user_id=session.get('user_id')).order_by(ScreeningSession.created_at.desc()).first()
     
-    prompt = f"Berdasarkan laporan kesehatan berikut: {scr.master_report if scr else ''}, buatkan 3-5 item To-Do List Action Plan 1-minggu yang konkret. Kembalikan JSON murni format: {{\"tasks\": [\"...\"]}}"
+    if not scr:
+        return jsonify({'status': 'error', 'message': 'Data skrining tidak ditemukan'}), 400
+    
+    prompt = f"""
+Berdasarkan data skrining dan keluhan AKTUAL pengguna berikut:
+- Nama: {scr.full_name}
+- Keluhan Utama: {scr.current_complaints} (Durasi: {scr.duration_complaints})
+- Kondisi/Penyakit: {scr.diseases}
+- Laporan Master: {scr.master_report or 'Belum ada'}
+
+PENTING: Buatkan 3-5 item To-Do List Action Plan 1-minggu yang SANGAT KONKRET dan RELEVAN HANYA dengan keluhan aktual di atas (misalnya penanganan keluhan buang air kecil, nafsu makan, kebingungan, pencernaan, atau metabolik). JANGAN membuat rencana aksi generik seperti leher pegal, cemas berlebih, atau insomnia jika tidak dikeluhkan oleh pengguna.
+Kembalikan JSON murni dalam format: {{"tasks": ["..."]}}
+"""
     try:
         response = client.chat.completions.create(
             model="gpt-4o-mini",
@@ -308,9 +514,10 @@ def step6_action_plan():
         result = json.loads(response.choices[0].message.content)
         tasks = result.get("tasks", [])
         
-        WeeklyTask.query.filter_by(session_id=active_id).delete()
+        target_session_id = scr.id
+        WeeklyTask.query.filter_by(session_id=target_session_id).delete()
         for t in tasks:
-            db.session.add(WeeklyTask(session_id=active_id, task_text=t, task_type='weekly'))
+            db.session.add(WeeklyTask(session_id=target_session_id, task_text=t, task_type='weekly'))
         db.session.commit()
         return jsonify({'status': 'success', 'tasks': tasks})
     except Exception as e:
@@ -318,7 +525,6 @@ def step6_action_plan():
 
 @app.route('/api/companion/chat', methods=['POST'])
 def companion_chat():
-    global global_screening_context
     if 'user_id' not in session:
         return jsonify({'companion_response': 'Sesi habis, silakan login kembali.'}), 401
         
@@ -326,7 +532,35 @@ def companion_chat():
     user_message = data.get('message', '')
     history = data.get('history', [])
     
-    messages = [{"role": "system", "content": f"{COUNSELOR_SYSTEM_PROMPT}\n\nKONTEKS LAPORAN KESEHATAN SIKUTAKI.AI:\n{global_screening_context}"}]
+    user_id = session.get('user_id')
+    active_id = session.get('active_screening_id')
+    scr = None
+    if active_id:
+        scr = ScreeningSession.query.get(active_id)
+    if not scr:
+        scr = ScreeningSession.query.filter_by(user_id=user_id).order_by(ScreeningSession.created_at.desc()).first()
+    
+    screening_context_str = "Belum ada data skrining atau keluhan tercatat."
+    if scr:
+        screening_context_str = f"""
+- Nama: {scr.full_name} (Umur: {scr.age}, Gender: {scr.gender})
+- Keluhan Utama: {scr.current_complaints} (Durasi: {scr.duration_complaints})
+- Riwayat Penyakit: {scr.diseases}
+- Tanda Vital: BB: {scr.weight} kg, TB: {scr.height} cm, TD: {scr.blood_pressure}, Tidur: {scr.sleep_hours} jam, Stres: {scr.stress_level}
+- Laporan Master Sikutaki: {scr.master_report or 'Belum ada'}
+"""
+    
+    dynamic_counselor_prompt = f"""
+{COUNSELOR_SYSTEM_PROMPT}
+
+DATA SKRINING & KELUHAN AKTUAL PENGGUNA SAAT INI:
+{screening_context_str}
+
+INSTRUKSI UTAMA:
+Berikan analisis, empati, dan saran pendampingan yang HANYA berfokus secara spesifik pada keluhan aktual pengguna di atas (misalnya keluhan sering buang air kecil, bingung, nafsu makan, pencernaan, metabolik, dll.). JANGAN berasumsi, menggeneralisasi, atau membahas keluhan standar seperti leher pegal, cemas berlebih, atau insomnia kecuali itu memang benar-benar tertulis dalam keluhan aktual pengguna. Jadilah konselor yang sangat akurat, relevan, dan empatik.
+"""
+
+    messages = [{"role": "system", "content": dynamic_counselor_prompt}]
     
     for h in history[-6:]:
         messages.append({"role": h.get('role'), "content": h.get('content')})
@@ -336,8 +570,8 @@ def companion_chat():
         response = client.chat.completions.create(
             model="gpt-4o-mini",
             messages=messages,
-            temperature=0.8,
-            max_tokens=350
+            temperature=0.7,
+            max_tokens=400
         )
         return jsonify({'companion_response': response.choices[0].message.content})
     except Exception as e:
@@ -393,8 +627,6 @@ def toggle_task():
         return jsonify({'status': 'success', 'completed': task.is_completed})
     return jsonify({'status': 'error'}), 404
 
-import os
-
 if __name__ == '__main__':
-    port = int(os.environ.get('PORT', 5000))
-    app.run(host='0.0.0.0', port=port)
+    print("🚀 Server Sikutaki.com berjalan di http://127.0.0.1:5000")
+    app.run(debug=True, port=5000)

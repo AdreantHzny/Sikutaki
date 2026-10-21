@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="id" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Daftar — SIKUTAKI.AI</title>
+    <!-- Sinkronisasi tema dari localStorage (default gelap untuk fokus) -->
+    <script>
+        (function() {
+            const savedTheme = localStorage.getItem('sikutaki-theme');
+            if (savedTheme === 'light') {
+                document.documentElement.classList.remove('dark');
+            } else {
+                document.documentElement.classList.add('dark');
+            }
+        })();
+    </script>
+    <!-- Google Fonts: Plus Jakarta Sans & JetBrains Mono -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+                        mono: ['"JetBrains Mono"', 'monospace'],
+                        data: ['"JetBrains Mono"', 'monospace'],
+                    },
+                    colors: {
+                        background: 'var(--background)',
+                        foreground: 'var(--foreground)',
+                        sidebar: 'var(--sidebar)',
+                        emeraldaccent: '#10b981',
+                        primary: 'var(--primary)',
+                        'primary-foreground': 'var(--primary-foreground)',
+                        muted: 'var(--muted)',
+                        'muted-foreground': 'var(--muted-foreground)',
+                        border: 'var(--border)',
+                        card: 'var(--card)',
+                        'card-foreground': 'var(--card-foreground)',
+                        success: 'var(--success)',
+                        warning: 'var(--warning)',
+                        destructive: 'var(--destructive)',
+                        secondary: 'var(--secondary)'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        :root {
+            --background: #f1f5f9;
+            --foreground: #0f172a;
+            --primary: #059669;
+            --primary-foreground: #ecfdf5;
+            --secondary: #e2e8f0;
+            --accent: #0d9488;
+            --muted: #e8eef5;
+            --muted-foreground: #475569;
+            --card: #ffffff;
+            --card-foreground: #0f172a;
+            --border: #cbd5e1;
+            --input: #cbd5e1;
+            --ring: #059669;
+            --glow: rgba(16, 185, 129, 0.35);
+        }
+        .dark {
+            --background: #070d1b;
+            --foreground: #e2e8f0;
+            --primary: #10b981;
+            --primary-foreground: #04120d;
+            --secondary: #1e293b;
+            --accent: #2dd4bf;
+            --muted: #111a2e;
+            --muted-foreground: #94a3b8;
+            --card: #0f172a;
+            --card-foreground: #e2e8f0;
+            --border: #1e293b;
+            --input: #263349;
+            --ring: #10b981;
+            --glow: rgba(16, 185, 129, 0.55);
+        }
+        body {
+            background-color: var(--background);
+            color: var(--foreground);
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            -webkit-font-smoothing: antialiased;
+        }
+        .hologram-container { animation: hologramGlow 3s ease-in-out infinite; }
+        .blob-primary {
+            background: radial-gradient(circle, var(--glow) 0%, transparent 70%);
+            filter: blur(60px);
+        }
+        @keyframes hologramGlow {
+            0%, 100% { filter: drop-shadow(0 0 6px rgba(16,185,129,.6)) drop-shadow(0 0 20px rgba(52,211,153,.4)); opacity: .92; }
+            50% { filter: drop-shadow(0 0 14px rgba(16,185,129,.9)) drop-shadow(0 0 28px rgba(52,211,153,.7)); opacity: 1; }
+        }
+        .ribbon-beam { stroke-dasharray: 90 910; animation: ribbonTravel 5s linear infinite; }
+        .ribbon-glow { animation: ribbonPulse 3.2s ease-in-out infinite; }
+        @keyframes ribbonTravel { from { stroke-dashoffset: 0; } to { stroke-dashoffset: -1000; } }
+        @keyframes ribbonPulse {
+            0%, 100% { filter: drop-shadow(0 0 8px rgba(16,185,129,.35)); opacity: .55; }
+            50% { filter: drop-shadow(0 0 22px rgba(16,185,129,.8)); opacity: .9; }
+        }
+    </style>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/sikutaki-ui.css') }}">
+</head>
+<body class="bg-background text-foreground min-h-screen flex items-center justify-center p-4 relative overflow-hidden transition-colors duration-300">
+
+    <!-- RIBBON WATERMARK BACKGROUND -->
+    <div aria-hidden="true" class="pointer-events-none fixed inset-0 z-0 flex items-center justify-center overflow-hidden">
+        <div class="blob-primary absolute h-[520px] w-[520px] opacity-30"></div>
+        <svg viewBox="0 0 400 560" class="ribbon-glow h-[78vh] max-h-[760px] w-auto opacity-60" fill="none">
+            <path d="M310 70 C 200 20, 70 70, 110 160 C 150 245, 300 250, 300 345 C 300 445, 160 500, 80 465" stroke="var(--primary)" stroke-opacity="0.18" stroke-width="38" stroke-linecap="round"></path>
+            <path d="M310 70 C 200 20, 70 70, 110 160 C 150 245, 300 250, 300 345 C 300 445, 160 500, 80 465" stroke="var(--primary)" stroke-opacity="0.4" stroke-width="2" stroke-linecap="round"></path>
+            <path class="ribbon-beam" pathLength="1000" d="M310 70 C 200 20, 70 70, 110 160 C 150 245, 300 250, 300 345 C 300 445, 160 500, 80 465" stroke="var(--accent)" stroke-width="6" stroke-linecap="round"></path>
+        </svg>
+    </div>
+
+    <!-- TOMBOL SKEMA TEMA & BAHASA -->
+    <div class="absolute top-4 right-4 z-20 flex items-center gap-2">
+        <div class="flex items-center gap-1 rounded-xl border border-border bg-card/80 backdrop-blur px-2 py-2 shadow-md">
+            <button onclick="setLanguage('id')" class="lang-btn text-[10px] px-1.5 py-0.5 rounded border border-border hover:border-primary font-mono font-bold text-foreground" data-lang="id">ID</button>
+            <button onclick="setLanguage('en')" class="lang-btn text-[10px] px-1.5 py-0.5 rounded border border-border hover:border-primary font-mono font-bold text-foreground" data-lang="en">EN</button>
+            <button onclick="setLanguage('es')" class="lang-btn text-[10px] px-1.5 py-0.5 rounded border border-border hover:border-primary font-mono font-bold text-foreground" data-lang="es">ES</button>
+            <button onclick="setLanguage('pt')" class="lang-btn text-[10px] px-1.5 py-0.5 rounded border border-border hover:border-primary font-mono font-bold text-foreground" data-lang="pt">PT</button>
+        </div>
+        <button type="button" onclick="toggleTheme()" aria-label="Ganti Tema" class="flex items-center gap-2 rounded-xl border border-border bg-card/80 backdrop-blur px-3 py-2 text-xs font-semibold text-foreground transition-all duration-150 hover:border-primary/40 active:scale-95 shadow-md">
+            <span id="themeLabel">☀️ Mode Terang</span>
+        </button>
+    </div>
+
+    <!-- CARD REGISTER COMPONENT -->
+    <main class="relative z-10 w-full max-w-md">
+        <div class="bg-card/90 backdrop-blur-md border border-border rounded-2xl p-8 shadow-2xl space-y-6" data-reveal>
+
+            <!-- HEADER LOGO & JUDUL -->
+            <div class="flex flex-col items-center text-center space-y-2">
+                <div class="hologram-container w-16 h-16 flex items-center justify-center mb-1">
+                    <img src="/static/logo-sikutaki.png" onerror="this.parentElement.innerHTML='<div class=\'w-12 h-12 rounded-2xl bg-emeraldaccent flex items-center justify-center font-bold text-slate-950 text-xl shadow-lg\'>S</div>';" alt="Logo" class="w-full h-full object-contain">
+                </div>
+                <h1 class="text-xl font-bold tracking-tight text-foreground">
+                    <span data-i18n="regTitle">Buat Akun</span> <span class="text-foreground">Sikutaki</span><span class="text-primary">.ai</span>
+                </h1>
+                <p class="text-xs text-muted-foreground" data-i18n="regSubtitle">
+                    Mulai perjalanan pemulihan kesehatan holistik Anda
+                </p>
+            </div>
+
+            <!-- NOTIFIKASI ERROR -->
+            {% if error %}
+            <div class="bg-destructive/10 text-destructive p-3 rounded-xl text-xs border border-destructive/30 flex items-center gap-2" style="animation: sikuPopIn .35s cubic-bezier(.34,1.56,.64,1) both;">
+                <span>⚠️</span> <span>{{ error }}</span>
+            </div>
+            {% endif %}
+
+            <!-- FORM REGISTER -->
+            <form method="POST" class="space-y-4 text-xs">
+                <div class="space-y-1.5">
+                    <label for="username" class="block font-medium text-foreground" data-i18n="usernameLabel">Nama Lengkap / Username</label>
+                    <input type="text" id="username" name="username" required placeholder="Nama Anda" data-i18n-placeholder="usernamePh"
+                           class="w-full bg-muted border border-border text-foreground rounded-xl px-4 py-3 text-xs placeholder-muted-foreground focus:outline-none focus:border-emeraldaccent focus:ring-1 focus:ring-emeraldaccent transition">
+                </div>
+                <div class="space-y-1.5">
+                    <label for="email" class="block font-medium text-foreground" data-i18n="emailLabel">Email</label>
+                    <input type="email" id="email" name="email" required placeholder="nama@email.com"
+                           class="w-full bg-muted border border-border text-foreground rounded-xl px-4 py-3 text-xs placeholder-muted-foreground focus:outline-none focus:border-emeraldaccent focus:ring-1 focus:ring-emeraldaccent transition">
+                </div>
+                <div class="space-y-1.5">
+                    <label for="password" class="block font-medium text-foreground" data-i18n="passwordLabel">Kata Sandi</label>
+                    <input type="password" id="password" name="password" required placeholder="••••••••"
+                           class="w-full bg-muted border border-border text-foreground rounded-xl px-4 py-3 text-xs placeholder-muted-foreground focus:outline-none focus:border-emeraldaccent focus:ring-1 focus:ring-emeraldaccent transition">
+                </div>
+                <button type="submit" data-ripple
+                        class="w-full py-3 mt-2 bg-emeraldaccent hover:opacity-95 text-slate-950 font-extrabold rounded-xl text-xs transition shadow-lg shadow-emerald-500/20 flex items-center justify-center gap-2 active:scale-[0.99]">
+                    <span data-i18n="regBtn">Daftar Akun Baru</span>
+                </button>
+            </form>
+
+            <!-- FOOTER LOGIN LINK -->
+            <div class="text-center text-xs text-muted-foreground pt-2 border-t border-border/50">
+                <span data-i18n="hasAccount">Sudah punya akun?</span> <a href="/login" class="text-primary hover:underline font-semibold" data-i18n="loginLink">Masuk di sini</a>
+            </div>
+        </div>
+
+        <!-- FOOTER DISCLOSURE -->
+        <p class="text-center font-data text-[9px] uppercase tracking-widest text-muted-foreground mt-6">
+            SIKUTAKI.AI · Collaborating Intelligence
+        </p>
+    </main>
+
+    <!-- SCRIPT TEMA & MULTI-BAHASA (ID, EN, ES, PT) -->
+    <script>
+        const translations = {
+            id: {
+                themeLight: "☀️ Mode Terang",
+                themeDark: "🌙 Mode Gelap",
+                regTitle: "Buat Akun",
+                regSubtitle: "Mulai perjalanan pemulihan kesehatan holistik Anda",
+                usernameLabel: "Nama Lengkap / Username",
+                usernamePh: "Nama Anda",
+                emailLabel: "Email",
+                passwordLabel: "Kata Sandi",
+                regBtn: "Daftar Akun Baru",
+                hasAccount: "Sudah punya akun?",
+                loginLink: "Masuk di sini"
+            },
+            en: {
+                themeLight: "☀️ Light Mode",
+                themeDark: "🌙 Dark Mode",
+                regTitle: "Create a",
+                regSubtitle: "Start your holistic health recovery journey",
+                usernameLabel: "Full Name / Username",
+                usernamePh: "Your name",
+                emailLabel: "Email",
+                passwordLabel: "Password",
+                regBtn: "Register New Account",
+                hasAccount: "Already have an account?",
+                loginLink: "Sign in here"
+            },
+            es: {
+                themeLight: "☀️ Modo Claro",
+                themeDark: "🌙 Modo Oscuro",
+                regTitle: "Crear cuenta en",
+                regSubtitle: "Comience su viaje de recuperación de salud holística",
+                usernameLabel: "Nombre Completo / Usuario",
+                usernamePh: "Su nombre",
+                emailLabel: "Correo electrónico",
+                passwordLabel: "Contraseña",
+                regBtn: "Registrar Cuenta Nueva",
+                hasAccount: "¿Ya tiene una cuenta?",
+                loginLink: "Inicie sesión aquí"
+            },
+            pt: {
+                themeLight: "☀️ Modo Claro",
+                themeDark: "🌙 Modo Escuro",
+                regTitle: "Criar conta no",
+                regSubtitle: "Comece sua jornada de recuperação de saúde holística",
+                usernameLabel: "Nome Completo / Usuário",
+                usernamePh: "Seu nome",
+                emailLabel: "E-mail",
+                passwordLabel: "Senha",
+                regBtn: "Cadastrar Nova Conta",
+                hasAccount: "Já tem uma conta?",
+                loginLink: "Entre aqui"
+            }
+        };
+
+        let currentLang = 'id';
+        const t = (key) => (translations[currentLang] && translations[currentLang][key]) || translations.id[key] || key;
+
+        function setLanguage(lang) {
+            if (!translations[lang]) return;
+            currentLang = lang;
+            localStorage.setItem('sikutaki-lang', lang);
+            document.documentElement.lang = lang;
+
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                if (translations[lang][key]) el.innerText = translations[lang][key];
+            });
+            document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+                const key = el.getAttribute('data-i18n-placeholder');
+                if (translations[lang][key]) el.placeholder = translations[lang][key];
+            });
+
+            const label = document.getElementById('themeLabel');
+            if (label) label.innerText = document.documentElement.classList.contains('dark') ? t('themeDark') : t('themeLight');
+
+            document.querySelectorAll('.lang-btn').forEach(btn => {
+                if (btn.dataset.lang === lang) {
+                    btn.classList.add('bg-primary/25', 'border-primary', 'text-primary');
+                } else {
+                    btn.classList.remove('bg-primary/25', 'border-primary', 'text-primary');
+                }
+            });
+        }
+
+        function toggleTheme() {
+            const html = document.documentElement;
+            const label = document.getElementById('themeLabel');
+            if (html.classList.contains('dark')) {
+                html.classList.remove('dark');
+                if(label) label.innerText = t('themeLight');
+                window.localStorage?.setItem('sikutaki-theme', 'light');
+            } else {
+                html.classList.add('dark');
+                if(label) label.innerText = t('themeDark');
+                window.localStorage?.setItem('sikutaki-theme', 'dark');
+            }
+        }
+        window.addEventListener('DOMContentLoaded', () => {
+            const savedLang = localStorage.getItem('sikutaki-lang') || 'id';
+            setLanguage(savedLang);
+        });
+    </script>
+    <script src="{{ url_for('static', filename='js/sikutaki-ui.js') }}"></script>
+</body>
+</html>

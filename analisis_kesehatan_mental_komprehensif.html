@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analisis Kesehatan Mental Komprehensif Digital - SIKUTAKI.AI</title>
+    <!-- Sinkronisasi tema dari localStorage (Default Light jika belum ada pilihan) -->
+    <script>
+        (function() {
+            const savedTheme = localStorage.getItem('sikutaki-theme');
+            if (savedTheme === 'dark') {
+                document.documentElement.classList.add('dark');
+            } else {
+                document.documentElement.classList.remove('dark');
+            }
+        })();
+    </script>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+                        mono: ['"JetBrains Mono"', 'monospace']
+                    },
+                    colors: {
+                        background: 'var(--background)',
+                        foreground: 'var(--foreground)',
+                        primary: 'var(--primary)',
+                        emeraldaccent: '#10b981',
+                        muted: 'var(--muted)',
+                        'muted-foreground': 'var(--muted-foreground)',
+                        border: 'var(--border)',
+                        card: 'var(--card)',
+                        'card-foreground': 'var(--card-foreground)',
+                        destructive: 'var(--destructive)'
+                    }
+                }
+            }
+        }
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        /* Variabel Warna Sistem Adaptif (Light Default) */
+        :root {
+            --background: #f1f5f9;
+            --foreground: #0f172a;
+            --primary: #059669;
+            --muted: #e8eef5;
+            --muted-foreground: #475569;
+            --card: #ffffff;
+            --card-foreground: #0f172a;
+            --border: #cbd5e1;
+            --glow: rgba(16, 185, 129, 0.35);
+        }
+
+        .dark {
+            color-scheme: dark;
+            --background: #070d1b;
+            --foreground: #e2e8f0;
+            --primary: #10b981;
+            --muted: #111a2e;
+            --muted-foreground: #94a3b8;
+            --card: #0f172a;
+            --card-foreground: #e2e8f0;
+            --border: #1e293b;
+            --glow: rgba(16, 185, 129, 0.55);
+        }
+
+        body {
+            background-color: var(--background);
+            color: var(--foreground);
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            -webkit-font-smoothing: antialiased;
+            transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+        }
+    </style>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/sikutaki-ui.css') }}">
+</head>
+<body class="bg-background text-foreground antialiased selection:bg-emerald-500 selection:text-slate-950 min-h-screen flex flex-col justify-between">
+
+    <!-- HEADER / NAVIGATION BAR -->
+    <header class="sticky top-0 z-50 backdrop-blur-xl bg-card/90 border-b border-border transition-colors duration-300">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+            <!-- Logo Saja -->
+            <div class="flex items-center gap-3">
+                <a href="/" class="flex items-center gap-2">
+                    <div class="w-10 h-10 rounded-xl bg-emeraldaccent/20 border border-emeraldaccent/40 flex items-center justify-center font-extrabold text-emeraldaccent text-xl tracking-tighter">
+                        S
+                    </div>
+                    <span class="font-extrabold text-xl tracking-tight text-foreground">SIKUTAKI<span class="text-primary">.AI</span></span>
+                </a>
+            </div>
+
+            <!-- Nav Links dengan Animasi Floating Pill Slider -->
+            <nav class="hidden lg:flex items-center relative bg-muted/60 dark:bg-slate-900/60 backdrop-blur-md p-1.5 rounded-full border border-border/80 shadow-inner">
+                <!-- Indikator Slide Animasi Mengikuti Kursor -->
+                <div id="navPillIndicator" class="absolute top-1.5 bottom-1.5 rounded-full bg-emeraldaccent/20 dark:bg-emeraldaccent/30 border border-emeraldaccent/40 shadow-sm transition-all duration-300 ease-out pointer-events-none opacity-0"></div>
+
+                <!-- Menu Items -->
+                <a href="/#features" class="nav-pill-item relative z-10 px-4 py-2 text-xs font-semibold text-muted-foreground hover:text-foreground transition-colors duration-200 whitespace-nowrap" data-i18n="navFeatures" onmouseenter="movePill(this)" onmouseleave="resetBlogPill()">
+                    Fitur
+                </a>
+                <a href="/#workflow" class="nav-pill-item relative z-10 px-4 py-2 text-xs font-semibold text-muted-foreground hover:text-foreground transition-colors duration-200 whitespace-nowrap" data-i18n="navWorkflow" onmouseenter="movePill(this)" onmouseleave="resetBlogPill()">
+                    Alur Skrining
+                </a>
+                <a href="/#testimonials" class="nav-pill-item relative z-10 px-4 py-2 text-xs font-semibold text-muted-foreground hover:text-foreground transition-colors duration-200 whitespace-nowrap" data-i18n="testiBadge" onmouseenter="movePill(this)" onmouseleave="resetBlogPill()">
+                    Testimonials
+                </a>
+                <a href="/#pricing" class="nav-pill-item relative z-10 px-4 py-2 text-xs font-semibold text-muted-foreground hover:text-foreground transition-colors duration-200 whitespace-nowrap" data-i18n="navPricing" onmouseenter="movePill(this)" onmouseleave="resetBlogPill()">
+                    Paket Layanan
+                </a>
+                <a href="/blog" class="nav-pill-item relative z-10 px-4 py-2 text-xs font-semibold text-emeraldaccent transition-colors duration-200 whitespace-nowrap" data-i18n="navBlog" onmouseenter="movePill(this)" onmouseleave="resetBlogPill()">
+                    Blog
+                </a>
+
+                <!-- Collaboration Dropdown Menu -->
+                <div class="relative group">
+                    <button onclick="toggleCollabMenu(event)" class="nav-pill-item relative z-10 px-4 py-2 text-xs font-semibold text-muted-foreground hover:text-foreground transition-colors duration-200 flex items-center gap-1.5 whitespace-nowrap focus:outline-none" onmouseenter="movePill(this)" onmouseleave="resetBlogPill()">
+                        <span data-i18n="navCollaboration">Collaboration</span>
+                        <span class="text-[10px] opacity-70">▾</span>
+                    </button>
+                    <div id="collabDropdown" class="hidden absolute top-full right-0 mt-3 w-48 bg-card border border-border rounded-2xl shadow-2xl py-2 z-50 backdrop-blur-xl">
+                        <button onclick="openCollabModal('investor')" class="w-full text-left px-4 py-2.5 text-xs font-semibold hover:bg-muted text-muted-foreground hover:text-foreground transition" data-i18n="collabInvestor">Investors</button>
+                        <button onclick="openCollabModal('partnership')" class="w-full text-left px-4 py-2.5 text-xs font-semibold hover:bg-muted text-muted-foreground hover:text-foreground transition" data-i18n="collabPartnership">Partnership</button>
+                    </div>
+                </div>
+            </nav>
+
+            <!-- Language Switcher, Theme Toggle & Action Button -->
+            <div class="flex items-center gap-3">
+                <button onclick="toggleTheme()" class="bg-muted hover:border-primary/40 text-foreground border border-border p-2.5 rounded-xl text-xs font-bold transition flex items-center justify-center focus:outline-none shadow-sm" aria-label="Toggle Theme">
+                    <span id="themeIcon">☀️</span>
+                </button>
+
+                <select id="langSelect" onchange="changeLanguage(this.value)" class="bg-muted text-foreground border border-border text-xs rounded-xl px-3 py-2 font-bold focus:outline-none focus:ring-2 focus:ring-primary shadow-sm">
+                    <option value="id">🇮🇩 ID</option>
+                    <option value="en">🇺🇸 EN</option>
+                    <option value="es">🇪🇸 ES</option>
+                    <option value="pt">🇧🇷 PT</option>
+                </select>
+
+                <a href="/login" class="bg-emeraldaccent hover:opacity-95 text-slate-950 font-extrabold px-5 py-2.5 rounded-xl text-xs transition shadow-lg shadow-emerald-500/20 transform active:scale-95">
+                    <span data-i18n="navLogin">Masuk / Launch App</span>
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- ARTICLE CONTAINER -->
+    <main class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-10">
+        
+        <!-- Tombol Kembali -->
+        <div>
+            <a href="/blog" class="inline-flex items-center gap-2 text-xs font-bold text-primary hover:text-primary/80 transition">
+                ← <span data-i18n="backToBlog">Kembali ke Blog</span>
+            </a>
+        </div>
+
+        <!-- Header Artikel -->
+        <div class="space-y-4">
+            <div class="flex items-center gap-3">
+                <span class="px-3 py-1 rounded-full text-[11px] font-bold bg-primary/10 text-primary border border-primary/30 uppercase tracking-wider" data-i18n="badgeBlog">
+                    Blog
+                </span>
+                <span class="text-xs text-muted-foreground font-mono">📅 <span data-i18n="articleDate">7 Apr 2026</span> • ⏱️ <span data-i18n="readTime">4 menit baca</span></span>
+            </div>
+            
+            <h1 class="text-3xl sm:text-4xl lg:text-5xl font-black text-foreground tracking-tight leading-tight" data-i18n="articleTitle">
+                Analisis Kesehatan Mental Komprehensif Digital
+            </h1>
+        </div>
+
+        <!-- Hero Graphic Card -->
+        <div class="bg-card border border-border rounded-3xl p-6 sm:p-8 space-y-6 relative overflow-hidden shadow-xl">
+            <div class="absolute -top-24 -right-24 w-72 h-72 bg-primary/10 rounded-full blur-3xl pointer-events-none"></div>
+            
+            <div class="space-y-3">
+                <span class="text-xs font-mono font-bold text-primary uppercase tracking-widest">
+                    <span data-i18n="heroBadge">📊 HUMAN-AI RESONANCE DIAGNOSTIC & THERAPY</span>
+                </span>
+                <h2 class="text-2xl sm:text-3xl font-extrabold text-foreground" data-i18n="heroCardTitle">
+                    Analisis Kesehatan Mental Komprehensif
+                </h2>
+                <p class="text-xs sm:text-sm text-muted-foreground leading-relaxed" data-i18n="heroCardDesc">
+                    Kolaborasi kecerdasan manusia dan AI untuk analisis kesehatan fisik & mental secara holistik dari body scan, profiling psikologis, dan mental, dll.
+                </p>
+            </div>
+        </div>
+
+        <!-- Breadcrumb & Intro Text -->
+        <div class="space-y-4 text-sm text-muted-foreground leading-relaxed border-b border-border/60 pb-8">
+            <p data-i18n="introP1">
+                Saat ini, kebutuhan akan <strong class="text-foreground">Analisis Kesehatan Mental Komprehensif</strong> semakin terasa penting untuk membantu pemetaan kondisi emosional secara menyeluruh. Banyak orang mulai menyadari bahwa kesehatan psikologis memegang peran krusial dalam produktivitas dan kualitas hidup jangka panjang.
+            </p>
+            <p data-i18n="introP2">
+                Melalui sistem <strong class="text-foreground">Sikutaki</strong>, pemetaan psikologis dilakukan secara mendalam dengan menggabungkan profil emosional, biomarker suara, serta kuesioner terstruktur yang dianalisis secara akurat oleh kecerdasan buatan.
+            </p>
+        </div>
+
+        <!-- Table of Contents -->
+        <div class="bg-card/80 border border-border rounded-2xl p-6 space-y-4 shadow-sm">
+            <h3 class="text-sm font-bold text-foreground flex items-center gap-2">
+                <span>📋</span> <span data-i18n="tocTitle">Table of Contents</span>
+            </h3>
+            <ul class="space-y-2 text-xs text-muted-foreground font-medium">
+                <li><a href="#section1" class="hover:text-primary transition" data-i18n="toc1">1. Pentingnya Pemetaan Emosional secara Komprehensif</a></li>
+                <li><a href="#section2" class="hover:text-primary transition" data-i18n="toc2">2. Peran AI dalam Membaca Pola Mental dan Tingkat Stres</a></li>
+                <li><a href="#section3" class="hover:text-primary transition" data-i18n="toc3">3. Pendekatan Holistik Menjaga Kestabilan Emosi</a></li>
+                <li><a href="#section4" class="hover:text-primary transition" data-i18n="toc4">4. Memulai Analisis Mental Bersama Sikutaki</a></li>
+            </ul>
+        </div>
+
+        <!-- Article Contents -->
+        <article class="space-y-10 text-sm text-muted-foreground leading-relaxed">
+            
+            <section id="section1" class="space-y-4">
+                <h2 class="text-xl font-bold text-foreground" data-i18n="sec1Title">
+                    Pentingnya Pemetaan Emosional secara Komprehensif
+                </h2>
+                <p data-i18n="sec1Desc">
+                    Kondisi mental yang sehat bukan sekadar ketiadaan gangguan psikologis, melainkan kemampuan individu untuk mengelola stres, beradaptasi dengan tekanan, dan mempertahankan keseimbangan batin. Analisis komprehensif membantu mengenali gejala awal kelelahan mental (*burnout*) sebelum berdampak buruk pada fisik.
+                </p>
+                
+                <div class="space-y-3 pl-4 border-l-2 border-primary/50">
+                    <h3 class="text-base font-bold text-foreground" data-i18n="sec1Sub1Title">Identifikasi Dini Pola Stres Harian</h3>
+                    <p data-i18n="sec1Sub1Desc">
+                        Dengan pemantauan berkala, sistem mampu mendeteksi perubahan kecil pada pola emosi dan tingkat stres harian secara objektif.
+                    </p>
+
+                    <h3 class="text-base font-bold text-foreground" data-i18n="sec1Sub2Title">Rekomendasi Penanganan yang Dipersonalisasi</h3>
+                    <p data-i18n="sec1Sub2Desc">
+                        Setiap laporan memberikan wawasan mendalam serta langkah pemulihan yang dirancang khusus menyesuaikan kondisi psikologis kamu saat ini.
+                    </p>
+                </div>
+            </section>
+
+            <section id="section2" class="space-y-4">
+                <h2 class="text-xl font-bold text-foreground" data-i18n="sec2Title">
+                    Peran AI dalam Membaca Pola Mental dan Tingkat Stres
+                </h2>
+                <p data-i18n="sec2Desc">
+                    Teknologi AI di platform Sikutaki memproses data dari berbagai parameter—termasuk intonasi suara saat berbicara (*voice biomarker*) dan input kuesioner—untuk menyajikan analisis psikologis yang mendalam, terarah, dan bebas dari unsur penghakiman.
+                </p>
+            </section>
+
+            <section id="section3" class="space-y-4">
+                <h2 class="text-xl font-bold text-foreground" data-i18n="sec3Title">
+                    Pendekatan Holistik Menjaga Kestabilan Emosi
+                </h2>
+                <p data-i18n="sec3Desc">
+                    Kesejahteraan mental dicapai ketika tubuh, pikiran, dan emosi berjalan selaras. Sikutaki mengintegrasikan saran kesehatan fisik dan mental secara bersamaan agar proses pemulihan berjalan optimal dan berkelanjutan.
+                </p>
+            </section>
+
+            <section id="section4" class="bg-card border border-primary/30 rounded-3xl p-6 sm:p-8 space-y-6 shadow-lg">
+                <h2 class="text-xl font-bold text-foreground" data-i18n="sec4Title">
+                    Memulai Analisis Mental Bersama Sikutaki
+                </h2>
+                <p data-i18n="sec4Desc">
+                    Kenali kondisi emosional dan tingkat stres Anda secara lebih akurat. Dapatkan laporan analisis kesehatan mental komprehensif dan panduan pendampingan profesional bersama Dr. Siku.
+                </p>
+
+                <div class="pt-4 flex flex-col sm:flex-row items-center justify-between gap-4 border-t border-border/60">
+                    <div>
+                        <p class="text-xs text-muted-foreground font-mono" data-i18n="contactLabel">Dukungan & Layanan:</p>
+                        <p class="text-sm font-bold text-primary">support@sikutaki.com</p>
+                    </div>
+                    <a href="/login" class="w-full sm:w-auto bg-emeraldaccent hover:opacity-95 text-slate-950 font-black px-6 py-3 rounded-2xl text-xs transition text-center shadow-lg shadow-emerald-500/20" data-i18n="startMentalAnalysis">
+                        Mulai Analisis Mental →
+                    </a>
+                </div>
+            </section>
+
+        </article>
+    </main>
+
+    <!-- COLLABORATION POPUP MODAL -->
+    <div id="collabModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm hidden">
+        <div class="bg-card border border-border rounded-3xl p-6 sm:p-8 max-w-md w-full mx-4 shadow-2xl relative space-y-6 transform transition-all">
+            <button onclick="closeCollabModal()" class="absolute top-4 right-4 text-muted-foreground hover:text-foreground text-sm font-bold">✕</button>
+            <div class="flex flex-col items-center text-center space-y-4">
+                <div class="w-12 h-12 rounded-2xl bg-primary/20 border border-primary/40 flex items-center justify-center font-black text-primary text-xl">
+                    S
+                </div>
+                <h3 id="modalTitle" class="text-xl font-extrabold text-foreground"></h3>
+                <p id="modalDesc" class="text-xs sm:text-sm text-muted-foreground leading-relaxed"></p>
+                <a id="modalWhatsAppBtn" href="https://wa.me/6281514603581" target="_blank" class="w-full bg-emeraldaccent hover:opacity-95 text-slate-950 font-extrabold py-3 rounded-xl text-xs transition shadow-lg shadow-emerald-500/20 flex items-center justify-center gap-2">
+                    <span data-i18n="contactWa">Contact via WhatsApp</span>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- FOOTER -->
+    <footer class="border-t border-border py-8 bg-card mt-auto">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-muted-foreground">
+            <p data-i18n="copyRight">© 2026 SIKUTAKI.AI. All rights reserved.</p>
+            <div class="flex items-center gap-6">
+                <a href="#" class="hover:text-foreground" data-i18n="footPrivacy">Kebijakan Privasi</a>
+                <a href="#" class="hover:text-foreground" data-i18n="footTerms">Syarat & Ketentuan</a>
+                <a href="#" class="hover:text-foreground" data-i18n="footContact">Dukungan Kontak</a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- SCRIPT MULTI-LANGUAGE (ID, EN, ES, PT), THEME, COLLABORATION & FLOATING PILL NAVBAR -->
+    <script>
+        const translations = {
+            id: {
+                navFeatures: "Fitur",
+                navWorkflow: "Alur Skrining",
+                testiBadge: "Testimonials",
+                navPricing: "Paket Layanan",
+                navBlog: "Blog",
+                navLogin: "Masuk / Launch App",
+                navCollaboration: "Collaboration",
+                collabInvestor: "Investors",
+                collabPartnership: "Partnership",
+                contactWa: "Contact via WhatsApp",
+                modalInvestorTitle: "Investors",
+                modalInvestorDesc: "Untuk investor, filantropis, impact investor, angel, badan pemerintah, entitas swasta, atau individu yang terpanggil berkontribusi pada kesehatan sumber daya manusia bangsa — baik mental maupun fisik — silakan hubungi PIC-Farid (081514603581).",
+                modalPartnershipTitle: "Partnership",
+                modalPartnershipDesc: "Kami terbuka untuk berbagai bentuk kolaborasi strategis guna membangun ekosistem kesehatan mental dan fisik yang lebih baik bagi masyarakat, bangsa, dan negara.",
+                backToBlog: "Kembali ke Blog",
+                badgeBlog: "Blog",
+                readTime: "4 menit baca",
+                articleTitle: "Analisis Kesehatan Mental Komprehensif Digital",
+                heroCardTitle: "Analisis Kesehatan Mental Komprehensif",
+                heroCardDesc: "Kolaborasi kecerdasan manusia dan AI untuk analisis kesehatan fisik & mental secara holistik dari body scan, profiling psikologis, dan mental, dll.",
+                introP1: "Saat ini, kebutuhan akan Analisis Kesehatan Mental Komprehensif semakin terasa penting untuk membantu pemetaan kondisi emosional secara menyeluruh. Banyak orang mulai menyadari bahwa kesehatan psikologis memegang peran krusial dalam produktivitas dan kualitas hidup jangka panjang.",
+                introP2: "Melalui sistem Sikutaki, pemetaan psikologis dilakukan secara mendalam dengan menggabungkan profil emosional, biomarker suara, serta kuesioner terstruktur yang dianalisis secara akurat oleh kecerdasan buatan.",
+                tocTitle: "Table of Contents",
+                toc1: "1. Pentingnya Pemetaan Emosional secara Komprehensif",
+                toc2: "2. Peran AI dalam Membaca Pola Mental dan Tingkat Stres",
+                toc3: "3. Pendekatan Holistik Menjaga Kestabilan Emosi",
+                toc4: "4. Memulai Analisis Mental Bersama Sikutaki",
+                sec1Title: "Pentingnya Pemetaan Emosional secara Komprehensif",
+                sec1Desc: "Kondisi mental yang sehat bukan sekadar ketiadaan gangguan psikologis, melainkan kemampuan individu untuk mengelola stres, beradaptasi dengan tekanan, dan mempertahankan keseimbangan batin. Analisis komprehensif membantu mengenali gejala awal kelelahan mental (burnout) sebelum berdampak buruk pada fisik.",
+                sec1Sub1Title: "Identifikasi Dini Pola Stres Harian",
+                sec1Sub1Desc: "Dengan pemantauan berkala, sistem mampu mendeteksi perubahan kecil pada pola emosi dan tingkat stres harian secara objektif.",
+                sec1Sub2Title: "Rekomendasi Penanganan yang Dipersonalisasi",
+                sec1Sub2Desc: "Setiap laporan memberikan wawasan mendalam serta langkah pemulihan yang dirancang khusus menyesuaikan kondisi psikologis kamu saat ini.",
+                sec2Title: "Peran AI dalam Membaca Pola Mental dan Tingkat Stres",
+                sec2Desc: "Teknologi AI di platform Sikutaki memproses data dari berbagai parameter—termasuk intonasi suara saat berbicara (voice biomarker) dan input kuesioner—untuk menyajikan analisis psikologis yang mendalam, terarah, dan bebas dari unsur penghakiman.",
+                sec3Title: "Pendekatan Holistik Menjaga Kestabilan Emosi",
+                sec3Desc: "Kesejahteraan mental dicapai ketika tubuh, pikiran, dan emosi berjalan selaras. Sikutaki mengintegrasikan saran kesehatan fisik dan mental secara bersamaan agar proses pemulihan berjalan optimal dan berkelanjutan.",
+                sec4Title: "Memulai Analisis Mental Bersama Sikutaki",
+                sec4Desc: "Kenali kondisi emosional dan tingkat stres Anda secara lebih akurat. Dapatkan laporan analisis kesehatan mental komprehensif dan panduan pendampingan profesional bersama Dr. Siku.",
+                contactLabel: "Dukungan & Layanan:",
+                startMentalAnalysis: "Mulai Analisis Mental →",
+                heroBadge: "📊 DIAGNOSTIK & TERAPI RESONANSI MANUSIA-AI",
+                articleDate: "7 Apr 2026",
+                copyRight: "© 2026 SIKUTAKI.AI. Hak cipta dilindungi.",
+                footPrivacy: "Kebijakan Privasi",
+                footTerms: "Syarat & Ketentuan",
+                footContact: "Dukungan Kontak",
+            },
+            en: {
+                navFeatures: "Features",
+                navWorkflow: "Workflow",
+                testiBadge: "Testimonials",
+                navPricing: "Pricing",
+                navBlog: "Blog",
+                navLogin: "Login / Launch App",
+                navCollaboration: "Collaboration",
+                collabInvestor: "Investors",
+                collabPartnership: "Partnership",
+                contactWa: "Contact via WhatsApp",
+                modalInvestorTitle: "Investors",
+                modalInvestorDesc: "For investors, philanthropists, impact investors, angels, government bodies, private entities, or individuals who are called to contribute to the nation's human resource health — whether mental or physical — please contact PIC-Farid (081514603581).",
+                modalPartnershipTitle: "Partnership",
+                modalPartnershipDesc: "We are open to various forms of strategic collaboration. Let's build a better mental and physical health ecosystem for the community, nation, and country.",
+                backToBlog: "Back to Blog",
+                badgeBlog: "Blog",
+                readTime: "4 min read",
+                articleTitle: "Digital Comprehensive Mental Health Analysis",
+                heroCardTitle: "Comprehensive Mental Health Analysis",
+                heroCardDesc: "Collaboration of human intelligence and AI for holistic physical and mental health analysis from body scans, psychological profiling, and more.",
+                introP1: "Nowadays, the need for Comprehensive Mental Health Analysis is increasingly crucial for thorough emotional mapping. Many people realize psychological health plays a vital role in productivity and long-term quality of life.",
+                introP2: "Through Sikutaki, psychological mapping combines emotional profiling, voice biomarkers, and structured questionnaires analyzed accurately by AI.",
+                tocTitle: "Table of Contents",
+                toc1: "1. The Importance of Comprehensive Emotional Mapping",
+                toc2: "2. The Role of AI in Reading Mental Patterns and Stress Levels",
+                toc3: "3. Holistic Approach to Maintaining Emotional Stability",
+                toc4: "4. Starting Mental Analysis with Sikutaki",
+                sec1Title: "The Importance of Comprehensive Emotional Mapping",
+                sec1Desc: "A healthy mental state involves managing stress and adapting to pressure. Comprehensive analysis helps recognize early signs of burnout before physical impacts occur.",
+                sec1Sub1Title: "Early Identification of Daily Stress Patterns",
+                sec1Sub1Desc: "With regular monitoring, the system objectively detects minor shifts in emotional patterns and stress levels.",
+                sec1Sub2Title: "Personalized Intervention Recommendations",
+                sec1Sub2Desc: "Each report provides deep insights and custom recovery steps tailored to your current psychological state.",
+                sec2Title: "The Role of AI in Reading Mental Patterns and Stress Levels",
+                sec2Desc: "Sikutaki's AI processes data from multiple parameters—including voice biomarkers and questionnaire inputs—delivering deep, objective psychological analysis.",
+                sec3Title: "Holistic Approach to Maintaining Emotional Stability",
+                sec3Desc: "Mental wellbeing is achieved when body, mind, and emotions align. Sikutaki integrates physical and mental health guidance for optimal recovery.",
+                sec4Title: "Starting Mental Analysis with Sikutaki",
+                sec4Desc: "Accurately recognize your emotional state and stress levels. Get comprehensive mental health reports and guidance with Dr. Siku.",
+                contactLabel: "Support & Services:",
+                startMentalAnalysis: "Start Mental Analysis →",
+                heroBadge: "📊 HUMAN-AI RESONANCE DIAGNOSTIC & THERAPY",
+                articleDate: "Apr 7, 2026",
+                copyRight: "© 2026 SIKUTAKI.AI. All rights reserved.",
+                footPrivacy: "Privacy Policy",
+                footTerms: "Terms & Conditions",
+                footContact: "Contact Support",
+            },
+            es: {
+                navFeatures: "Características",
+                navWorkflow: "Flujo de Trabajo",
+                testiBadge: "Testimonials",
+                navPricing: "Planes",
+                navBlog: "Blog",
+                navLogin: "Iniciar Sesión",
+                navCollaboration: "Colaboración",
+                collabInvestor: "Inversionistas",
+                collabPartnership: "Asociación",
+                contactWa: "Contactar vía WhatsApp",
+                modalInvestorTitle: "Inversionistas",
+                modalInvestorDesc: "Para inversores, filántropos, ángeles, entidades gubernamentales o privadas interesadas en contribuir a la salud de los recursos humanos, comuníquese con PIC-Farid (081514603581).",
+                modalPartnershipTitle: "Asociación",
+                modalPartnershipDesc: "Estamos abiertos a diversas formas de colaboración estratégica para construir un mejor ecosistema de salud mental y física.",
+                backToBlog: "Volver al Blog",
+                badgeBlog: "Blog",
+                readTime: "4 min de lectura",
+                articleTitle: "Análisis Integral de Salud Mental Digital",
+                heroCardTitle: "Análisis Integral de Salud Mental",
+                heroCardDesc: "Colaboración de inteligencia humana e IA para análisis holístico de salud física y mental.",
+                introP1: "Hoy en día, la necesidad de un Análisis Integral de Salud Mental es crucial para un mapeo emocional completo.",
+                introP2: "A través de Sikutaki, el mapeo psicológico combina perfiles emocionales, biomarcadores de voz y cuestionarios estructurados analizados por IA.",
+                tocTitle: "Tabla de Contenido",
+                toc1: "1. La Importancia del Mapeo Emocional Integral",
+                toc2: "2. El Rol de la IA en la Lectura de Patrones Mentales y Niveles de Estrés",
+                toc3: "3. Enfoque Holístico para Mantener la Estabilidad Emocional",
+                toc4: "4. Iniciar el Análisis Mental con Sikutaki",
+                sec1Title: "La Importancia del Mapeo Emocional Integral",
+                sec1Desc: "Un estado mental saludable implica manejar el estrés. El análisis ayuda a reconocer signos tempranos de agotamiento (burnout).",
+                sec1Sub1Title: "Identificación Temprana de Patrones de Estrés Diario",
+                sec1Sub1Desc: "El monitoreo regular detecta cambios sutiles en los patrones emocionales y niveles de estrés.",
+                sec1Sub2Title: "Recomendaciones de Intervención Personalizadas",
+                sec1Sub2Desc: "Cada informe ofrece perspectivas profundas y pasos de recuperación adaptados a ti.",
+                sec2Title: "El Rol de la IA en la Lectura de Patrones Mentales y Niveles de Estrés",
+                sec2Desc: "La IA procesa biomarcadores de voz y cuestionarios para brindar un análisis psicológico objetivo.",
+                sec3Title: "Enfoque Holístico para Mantener la Estabilidad Emocional",
+                sec3Desc: "El bienestar mental se logra alineando cuerpo y mente mediante orientación de salud integrada.",
+                sec4Title: "Iniciar el Análisis Mental con Sikutaki",
+                sec4Desc: "Comprende tu estado emocional con precisión y obtén informes completos de salud mental.",
+                contactLabel: "Soporte y Servicios:",
+                startMentalAnalysis: "Iniciar Análisis Mental →",
+                heroBadge: "📊 DIAGNÓSTICO Y TERAPIA DE RESONANCIA HUMANA-IA",
+                articleDate: "7 abr 2026",
+                copyRight: "© 2026 SIKUTAKI.AI. Todos los derechos reservados.",
+                footPrivacy: "Política de Privacidad",
+                footTerms: "Términos y Condiciones",
+                footContact: "Soporte de Contacto",
+            },
+            pt: {
+                navFeatures: "Recursos",
+                navWorkflow: "Fluxo de Trabalho",
+                testiBadge: "Testimonials",
+                navPricing: "Planos",
+                navBlog: "Blog",
+                navLogin: "Entrar / Iniciar",
+                navCollaboration: "Colaboração",
+                collabInvestor: "Investidores",
+                collabPartnership: "Parceria",
+                contactWa: "Contato via WhatsApp",
+                modalInvestorTitle: "Investidores",
+                modalInvestorDesc: "Para investidores, filantropos, anjos, órgãos governamentais ou entidades privadas que desejam contribuir para a saúde de recursos humanos, entre em contato com PIC-Farid (081514603581).",
+                modalPartnershipTitle: "Parceria",
+                modalPartnershipDesc: "Estamos abertos a várias formas de colaboração estratégica para construir um ecossistema de saúde melhor.",
+                backToBlog: "Voltar ao Blog",
+                badgeBlog: "Blog",
+                readTime: "4 min de leitura",
+                articleTitle: "Análise de Saúde Mental Abrangente Digital",
+                heroCardTitle: "Análise de Saúde Mental Abrangente",
+                heroCardDesc: "Colaboração entre inteligência humana e IA para análise holística de saúde física e mental.",
+                introP1: "A necessidade de uma Análise de Saúde Mental Abrangente é essencial para o mapeamento emocional profundo.",
+                introP2: "A Sikutaki combina perfis emocionais, biomarcadores de voz e questionários estruturados analisados por IA.",
+                tocTitle: "Índice",
+                toc1: "1. A Importância do Mapeamento Emocional Abrangente",
+                toc2: "2. O Papel da IA na Leitura de Padrões Mentais e Estresse",
+                toc3: "3. Abordagem Holística para Manter a Estabilidade Emocional",
+                toc4: "4. Iniciar a Análise Mental na Sikutaki",
+                sec1Title: "A Importância do Mapeamento Emocional Abrangente",
+                sec1Desc: "A saúde mental envolve gerenciar o estresse e adaptar-se à pressão. Análises profundas previnem o burnout.",
+                sec1Sub1Title: "Identificação Precoce de Padrões de Estresse Diário",
+                sec1Sub1Desc: "O monitoramento regular detecta alterações sutis no estado emocional.",
+                sec1Sub2Title: "Recomendações Personalizadas de Intervenção",
+                sec1Sub2Desc: "Relatórios aprofundados com etapas de recuperação sob medida para você.",
+                sec2Title: "O Papel da IA na Leitura de Padrões Mentais e Estresse",
+                sec2Desc: "A IA processa parâmetros como biomarcadores de voz e questionários para análises precisas.",
+                sec3Title: "Abordagem Holística para Manter a Estabilidade Emocional",
+                sec3Desc: "O bem-estar mental conecta corpo, mente e emoções em harmonia contínua.",
+                sec4Title: "Iniciar a Análise Mental na Sikutaki",
+                sec4Desc: "Compreenda seu estado emocional com relatórios completos e orientações profissionais.",
+                contactLabel: "Suporte & Serviços:",
+                startMentalAnalysis: "Iniciar Análise Mental →",
+                heroBadge: "📊 DIAGNÓSTICO E TERAPIA DE RESSONÂNCIA HUMANA-IA",
+                articleDate: "7 abr 2026",
+                copyRight: "© 2026 SIKUTAKI.AI. Todos os direitos reservados.",
+                footPrivacy: "Política de Privacidade",
+                footTerms: "Termos e Condições",
+                footContact: "Suporte de Contato",
+            }
+        };
+
+        function changeLanguage(lang) {
+            localStorage.setItem('sikutaki-lang', lang);
+            const t = translations[lang] || translations['id'];
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                if (t[key]) {
+                    el.textContent = t[key];
+                }
+            });
+            document.documentElement.lang = lang;
+        }
+
+        function toggleTheme() {
+            const htmlEl = document.documentElement;
+            const themeIcon = document.getElementById('themeIcon');
+            if (htmlEl.classList.contains('dark')) {
+                htmlEl.classList.remove('dark');
+                if (themeIcon) themeIcon.textContent = '☀️';
+                localStorage.setItem('sikutaki-theme', 'light');
+            } else {
+                htmlEl.classList.add('dark');
+                if (themeIcon) themeIcon.textContent = '🌙';
+                localStorage.setItem('sikutaki-theme', 'dark');
+            }
+        }
+
+        function toggleCollabMenu(event) {
+            event.stopPropagation();
+            const dropdown = document.getElementById('collabDropdown');
+            dropdown.classList.toggle('hidden');
+        }
+
+        window.addEventListener('click', () => {
+            const dropdown = document.getElementById('collabDropdown');
+            if (dropdown && !dropdown.classList.contains('hidden')) {
+                dropdown.classList.add('hidden');
+            }
+        });
+
+        function openCollabModal(type) {
+            const modal = document.getElementById('collabModal');
+            const titleEl = document.getElementById('modalTitle');
+            const descEl = document.getElementById('modalDesc');
+            
+            const currentLang = localStorage.getItem('sikutaki-lang') || 'id';
+            const t = translations[currentLang] || translations['id'];
+
+            if (type === 'investor') {
+                titleEl.textContent = t.modalInvestorTitle;
+                descEl.textContent = t.modalInvestorDesc;
+            } else if (type === 'partnership') {
+                titleEl.textContent = t.modalPartnershipTitle;
+                descEl.textContent = t.modalPartnershipDesc;
+            }
+
+            modal.classList.remove('hidden');
+            document.getElementById('collabDropdown').classList.add('hidden');
+        }
+
+        function closeCollabModal() {
+            document.getElementById('collabModal').classList.add('hidden');
+        }
+
+        function movePill(element) {
+            const indicator = document.getElementById('navPillIndicator');
+            if (!indicator || !element) return;
+            
+            const left = element.offsetLeft;
+            const width = element.offsetWidth;
+            
+            indicator.style.left = `${left}px`;
+            indicator.style.width = `${width}px`;
+            indicator.style.opacity = '1';
+        }
+
+        function resetBlogPill() {
+            const blogMenu = document.querySelector('nav a[href="/blog"]');
+            if (blogMenu) {
+                movePill(blogMenu);
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const savedTheme = localStorage.getItem('sikutaki-theme');
+            const htmlEl = document.documentElement;
+            const themeIcon = document.getElementById('themeIcon');
+            
+            if (savedTheme === 'dark') {
+                htmlEl.classList.add('dark');
+                if (themeIcon) themeIcon.textContent = '🌙';
+            } else {
+                htmlEl.classList.remove('dark');
+                if (themeIcon) themeIcon.textContent = '☀️';
+            }
+
+            const savedLang = localStorage.getItem('sikutaki-lang') || 'id';
+            const langSelect = document.getElementById('langSelect');
+            if (langSelect) langSelect.value = savedLang;
+            changeLanguage(savedLang);
+
+            const blogMenu = document.querySelector('nav a[href="/blog"]');
+            if (blogMenu) {
+                setTimeout(() => movePill(blogMenu), 100);
+            }
+        });
+    </script>
+    <script src="{{ url_for('static', filename='js/sikutaki-ui.js') }}"></script>
+</body>
+</html>

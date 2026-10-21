@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="id" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Laporan Asesmen — SIKUTAKI.AI</title>
+    <!-- Sinkronisasi tema dari localStorage -->
+    <script>
+        (function() {
+            const savedTheme = localStorage.getItem('sikutaki-theme');
+            if (savedTheme === 'light') {
+                document.documentElement.classList.remove('dark');
+            } else {
+                document.documentElement.classList.add('dark');
+            }
+        })();
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+                        mono: ['"JetBrains Mono"', 'monospace'],
+                        data: ['"JetBrains Mono"', 'monospace'],
+                    },
+                    colors: {
+                        background: 'var(--background)',
+                        foreground: 'var(--foreground)',
+                        emeraldaccent: '#10b981',
+                        primary: 'var(--primary)',
+                        'primary-foreground': 'var(--primary-foreground)',
+                        muted: 'var(--muted)',
+                        'muted-foreground': 'var(--muted-foreground)',
+                        border: 'var(--border)',
+                        card: 'var(--card)',
+                        'card-foreground': 'var(--card-foreground)',
+                        destructive: 'var(--destructive)',
+                        secondary: 'var(--secondary)'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        :root {
+            --background: #f1f5f9;
+            --foreground: #0f172a;
+            --primary: #059669;
+            --primary-foreground: #ecfdf5;
+            --secondary: #e2e8f0;
+            --accent: #0d9488;
+            --muted: #e8eef5;
+            --muted-foreground: #475569;
+            --card: #ffffff;
+            --card-foreground: #0f172a;
+            --border: #cbd5e1;
+            --ring: #059669;
+            --glow: rgba(16, 185, 129, 0.35);
+            --scanline: rgba(5, 150, 105, 0.05);
+        }
+        .dark {
+            --background: #070d1b;
+            --foreground: #e2e8f0;
+            --primary: #10b981;
+            --primary-foreground: #04120d;
+            --secondary: #1e293b;
+            --accent: #2dd4bf;
+            --muted: #111a2e;
+            --muted-foreground: #94a3b8;
+            --card: #0f172a;
+            --card-foreground: #e2e8f0;
+            --border: #1e293b;
+            --ring: #10b981;
+            --glow: rgba(16, 185, 129, 0.55);
+            --scanline: rgba(16, 185, 129, 0.06);
+        }
+        body {
+            background-color: var(--background);
+            color: var(--foreground);
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            -webkit-font-smoothing: antialiased;
+        }
+        .blob-primary {
+            background: radial-gradient(circle, var(--glow) 0%, transparent 70%);
+            filter: blur(60px);
+        }
+        @keyframes floatBlob {
+            0%, 100% { transform: translate(0px, 0px) scale(1); }
+            33% { transform: translate(40px, -60px) scale(1.12); }
+            66% { transform: translate(-30px, 30px) scale(0.92); }
+        }
+        .animate-blob { animation: floatBlob 14s ease-in-out infinite; }
+        .hologram-container { animation: hologramGlow 3s ease-in-out infinite; }
+        @keyframes hologramGlow {
+            0%, 100% { filter: drop-shadow(0 0 6px rgba(16,185,129,.6)) drop-shadow(0 0 20px rgba(52,211,153,.4)); opacity: .92; }
+            50% { filter: drop-shadow(0 0 14px rgba(16,185,129,.9)) drop-shadow(0 0 28px rgba(52,211,153,.7)); opacity: 1; }
+        }
+        .scanlines { position: relative; }
+        .scanlines::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            border-radius: inherit;
+            background-image: repeating-linear-gradient(0deg, var(--scanline) 0px, var(--scanline) 1px, transparent 1px, transparent 3px);
+            opacity: 0.9;
+        }
+        .report-body { line-height: 1.85; }
+        .report-body::first-letter { font-weight: 800; color: var(--primary); }
+    </style>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/sikutaki-ui.css') }}">
+</head>
+<body class="bg-background text-foreground min-h-screen font-sans transition-colors duration-300 relative overflow-x-hidden">
+
+    <!-- Ambient Background -->
+    <div aria-hidden="true" class="pointer-events-none fixed inset-0 z-0 overflow-hidden">
+        <div class="blob-primary absolute -top-24 -left-24 h-96 w-96 opacity-25 animate-blob"></div>
+        <div class="blob-primary absolute bottom-0 -right-24 h-80 w-80 opacity-20 animate-blob" style="animation-delay:-7s;"></div>
+    </div>
+
+    <!-- Header -->
+    <header class="sticky top-0 z-30 border-b border-border bg-card/90 backdrop-blur-xl px-4 sm:px-6 py-3.5 flex justify-between items-center gap-3">
+        <div class="flex items-center gap-3 min-w-0">
+            <div class="hologram-container w-9 h-9 flex items-center justify-center shrink-0">
+                <img src="/static/logo-sikutaki.png" onerror="this.parentElement.innerHTML='<div class=\'w-8 h-8 rounded-xl bg-emeraldaccent flex items-center justify-center font-bold text-slate-950\'>S</div>';" alt="Logo" class="w-full h-full object-contain">
+            </div>
+            <h1 class="text-base sm:text-lg font-extrabold tracking-tight truncate">SIKUTAKI<span class="text-primary">.AI</span> <span class="hidden sm:inline text-muted-foreground font-semibold text-sm" data-i18n="pageTag">· Laporan</span></h1>
+        </div>
+        <div class="flex items-center gap-2 sm:gap-3 shrink-0">
+            <span class="hidden md:inline text-xs text-muted-foreground"><span data-i18n="repForUser">Hasil Analisis untuk</span> <strong class="text-primary">{{ username }}</strong></span>
+            <div class="flex items-center gap-1 rounded-xl border border-border bg-muted px-1.5 py-1.5">
+                <button onclick="setLanguage('id')" class="lang-btn text-[10px] px-1.5 py-0.5 rounded border border-border hover:border-primary font-mono font-bold text-foreground" data-lang="id">ID</button>
+                <button onclick="setLanguage('en')" class="lang-btn text-[10px] px-1.5 py-0.5 rounded border border-border hover:border-primary font-mono font-bold text-foreground" data-lang="en">EN</button>
+                <button onclick="setLanguage('es')" class="lang-btn text-[10px] px-1.5 py-0.5 rounded border border-border hover:border-primary font-mono font-bold text-foreground" data-lang="es">ES</button>
+                <button onclick="setLanguage('pt')" class="lang-btn text-[10px] px-1.5 py-0.5 rounded border border-border hover:border-primary font-mono font-bold text-foreground" data-lang="pt">PT</button>
+            </div>
+            <button type="button" onclick="toggleTheme()" aria-label="Ganti Tema" class="rounded-xl border border-border bg-muted p-2.5 text-foreground text-xs transition hover:border-primary/40 active:scale-95">
+                <span id="themeIcon">☀️</span>
+            </button>
+            <a href="/" data-ripple class="text-xs bg-emeraldaccent text-slate-950 font-extrabold px-4 py-2.5 rounded-xl hover:opacity-95 transition shadow-lg shadow-emerald-500/20 active:scale-95" data-i18n="repToCompanion">Lanjut ke AI Companion</a>
+        </div>
+    </header>
+
+    <!-- Report Content -->
+    <main class="relative z-10 max-w-4xl mx-auto p-4 sm:p-6 mt-4 sm:mt-8 mb-12">
+        <div class="bg-card p-6 sm:p-8 rounded-3xl border border-border shadow-2xl space-y-6" data-reveal>
+            <div class="border-b border-border pb-5">
+                <div class="flex items-center gap-2 mb-2">
+                    <span class="inline-flex items-center gap-1.5 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-[10px] px-2.5 py-1 rounded-full font-mono font-bold border border-emerald-500/20">
+                        <span class="h-1.5 w-1.5 rounded-full bg-emerald-500 siku-pulse-dot"></span> <span data-i18n="repBadge">ANALYSIS COMPLETE</span>
+                    </span>
+                </div>
+                <h2 class="text-xl sm:text-2xl font-extrabold tracking-tight text-foreground" data-i18n="repTitle">📋 Laporan Komprehensif Multi-Agent Sikutaki</h2>
+                <p class="text-xs text-muted-foreground mt-1.5" data-i18n="repDesc">Laporan ini memuat temuan fisik, mental, serta korelasi psikosomatik yang dihasilkan oleh sistem AI.</p>
+            </div>
+
+            <div class="scanlines bg-muted/70 p-6 sm:p-7 rounded-2xl border border-border text-sm report-body whitespace-pre-line text-foreground/90" data-reveal>{{ report }}</div>
+
+            <div class="flex flex-col sm:flex-row justify-end gap-3 pt-4 border-t border-border/60">
+                <a href="/assessment" class="text-center bg-muted hover:border-primary/40 text-foreground text-xs font-semibold px-5 py-3 rounded-xl border border-border transition active:scale-95" data-i18n="repRetry">Ulangi Asesmen</a>
+                <a href="/" data-ripple class="siku-shine text-center bg-emeraldaccent hover:opacity-95 text-slate-950 font-extrabold text-xs px-6 py-3 rounded-xl transition shadow-lg shadow-emerald-500/20 active:scale-95" data-i18n="repStart">Mulai Sesi Konseling AI Companion →</a>
+            </div>
+        </div>
+
+        <p class="text-center font-data text-[9px] uppercase tracking-widest text-muted-foreground mt-8">
+            SIKUTAKI.AI · Collaborating Intelligence
+        </p>
+    </main>
+
+    <script>
+        function toggleTheme() {
+            const html = document.documentElement;
+            const icon = document.getElementById('themeIcon');
+            if (html.classList.contains('dark')) {
+                html.classList.remove('dark');
+                if (icon) icon.innerText = "🌙";
+                window.localStorage?.setItem('sikutaki-theme', 'light');
+            } else {
+                html.classList.add('dark');
+                if (icon) icon.innerText = "☀️";
+                window.localStorage?.setItem('sikutaki-theme', 'dark');
+            }
+        }
+
+        const translations = {
+            id: {
+                pageTag: '· Laporan',
+                repForUser: 'Hasil Analisis untuk',
+                repToCompanion: 'Lanjut ke AI Companion',
+                repBadge: 'ANALYSIS COMPLETE',
+                repTitle: '📋 Laporan Komprehensif Multi-Agent Sikutaki',
+                repDesc: 'Laporan ini memuat temuan fisik, mental, serta korelasi psikosomatik yang dihasilkan oleh sistem AI.',
+                repRetry: 'Ulangi Asesmen',
+                repStart: 'Mulai Sesi Konseling AI Companion →',
+            },
+            en: {
+                pageTag: '· Report',
+                repForUser: 'Analysis Results for',
+                repToCompanion: 'Continue to AI Companion',
+                repBadge: 'ANALYSIS COMPLETE',
+                repTitle: '📋 Sikutaki Multi-Agent Comprehensive Report',
+                repDesc: 'This report contains physical and mental findings, as well as psychosomatic correlations generated by the AI system.',
+                repRetry: 'Retake Assessment',
+                repStart: 'Start AI Companion Counseling Session →',
+            },
+            es: {
+                pageTag: '· Informe',
+                repForUser: 'Resultados del Análisis para',
+                repToCompanion: 'Continuar al AI Companion',
+                repBadge: 'ANÁLISIS COMPLETO',
+                repTitle: '📋 Informe Integral Multi-Agente Sikutaki',
+                repDesc: 'Este informe contiene hallazgos físicos y mentales, así como correlaciones psicosomáticas generadas por el sistema de IA.',
+                repRetry: 'Repetir Evaluación',
+                repStart: 'Iniciar Sesión de Asesoría con AI Companion →',
+            },
+            pt: {
+                pageTag: '· Relatório',
+                repForUser: 'Resultados da Análise para',
+                repToCompanion: 'Continuar para o AI Companion',
+                repBadge: 'ANÁLISE CONCLUÍDA',
+                repTitle: '📋 Relatório Abrangente Multi-Agente Sikutaki',
+                repDesc: 'Este relatório contém achados físicos e mentais, bem como correlações psicossomáticas geradas pelo sistema de IA.',
+                repRetry: 'Refazer Avaliação',
+                repStart: 'Iniciar Sessão de Aconselhamento com AI Companion →',
+            },
+        };
+
+        let currentLang = 'id';
+        const t = (key) => (translations[currentLang] && translations[currentLang][key]) || translations.id[key] || key;
+
+        function setLanguage(lang) {
+            if (!translations[lang]) lang = 'id';
+            currentLang = lang;
+            localStorage.setItem('sikutaki-lang', lang);
+            document.documentElement.lang = lang;
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                if (translations[lang][key] !== undefined) el.innerText = translations[lang][key];
+            });
+            document.querySelectorAll('.lang-btn').forEach(b => {
+                const active = b.dataset.lang === lang;
+                b.classList.toggle('bg-primary', active);
+                b.classList.toggle('text-primary-foreground', active);
+                b.classList.toggle('text-foreground', !active);
+                b.classList.toggle('text-muted-foreground', !active);
+            });
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            const icon = document.getElementById('themeIcon');
+            if (icon) icon.innerText = document.documentElement.classList.contains('dark') ? "☀️" : "🌙";
+            setLanguage(localStorage.getItem('sikutaki-lang') || 'id');
+        });
+    </script>
+    <script src="{{ url_for('static', filename='js/sikutaki-ui.js') }}"></script>
+</body>
+</html>

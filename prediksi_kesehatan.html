@@ -1,0 +1,683 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Alat Prediksi Kesehatan Kedepan Berbasis AI - SIKUTAKI.AI</title>
+    <!-- Sinkronisasi tema dari localStorage (Default Light jika belum ada pilihan) -->
+    <script>
+        (function() {
+            const savedTheme = localStorage.getItem('sikutaki-theme');
+            if (savedTheme === 'dark') {
+                document.documentElement.classList.add('dark');
+            } else {
+                document.documentElement.classList.remove('dark');
+            }
+        })();
+    </script>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+                        mono: ['"JetBrains Mono"', 'monospace']
+                    },
+                    colors: {
+                        background: 'var(--background)',
+                        foreground: 'var(--foreground)',
+                        primary: 'var(--primary)',
+                        emeraldaccent: '#10b981',
+                        muted: 'var(--muted)',
+                        'muted-foreground': 'var(--muted-foreground)',
+                        border: 'var(--border)',
+                        card: 'var(--card)',
+                        'card-foreground': 'var(--card-foreground)',
+                        destructive: 'var(--destructive)'
+                    }
+                }
+            }
+        }
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        /* Variabel Warna Sistem Adaptif (Light Default) */
+        :root {
+            --background: #f1f5f9;
+            --foreground: #0f172a;
+            --primary: #059669;
+            --muted: #e8eef5;
+            --muted-foreground: #475569;
+            --card: #ffffff;
+            --card-foreground: #0f172a;
+            --border: #cbd5e1;
+            --glow: rgba(16, 185, 129, 0.35);
+        }
+
+        .dark {
+            color-scheme: dark;
+            --background: #070d1b;
+            --foreground: #e2e8f0;
+            --primary: #10b981;
+            --muted: #111a2e;
+            --muted-foreground: #94a3b8;
+            --card: #0f172a;
+            --card-foreground: #e2e8f0;
+            --border: #1e293b;
+            --glow: rgba(16, 185, 129, 0.55);
+        }
+
+        body {
+            background-color: var(--background);
+            color: var(--foreground);
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            -webkit-font-smoothing: antialiased;
+            transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+        }
+    </style>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/sikutaki-ui.css') }}">
+</head>
+<body class="bg-background text-foreground antialiased selection:bg-emerald-500 selection:text-slate-950 min-h-screen flex flex-col justify-between">
+
+    <!-- HEADER / NAVIGATION BAR -->
+    <header class="sticky top-0 z-50 backdrop-blur-xl bg-card/90 border-b border-border transition-colors duration-300">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+            <!-- Logo Saja -->
+            <div class="flex items-center gap-3">
+                <a href="/" class="flex items-center gap-2">
+                    <div class="w-10 h-10 rounded-xl bg-emeraldaccent/20 border border-emeraldaccent/40 flex items-center justify-center font-extrabold text-emeraldaccent text-xl tracking-tighter">
+                        S
+                    </div>
+                    <span class="font-extrabold text-xl tracking-tight text-foreground">SIKUTAKI<span class="text-primary">.AI</span></span>
+                </a>
+            </div>
+
+            <!-- Nav Links dengan Animasi Floating Pill Slider -->
+            <nav class="hidden lg:flex items-center relative bg-muted/60 dark:bg-slate-900/60 backdrop-blur-md p-1.5 rounded-full border border-border/80 shadow-inner">
+                <!-- Indikator Slide Animasi Mengikuti Kursor -->
+                <div id="navPillIndicator" class="absolute top-1.5 bottom-1.5 rounded-full bg-emeraldaccent/20 dark:bg-emeraldaccent/30 border border-emeraldaccent/40 shadow-sm transition-all duration-300 ease-out pointer-events-none opacity-0"></div>
+
+                <!-- Menu Items -->
+                <a href="/#features" class="nav-pill-item relative z-10 px-4 py-2 text-xs font-semibold text-muted-foreground hover:text-foreground transition-colors duration-200 whitespace-nowrap" data-i18n="navFeatures" onmouseenter="movePill(this)" onmouseleave="resetBlogPill()">
+                    Fitur
+                </a>
+                <a href="/#workflow" class="nav-pill-item relative z-10 px-4 py-2 text-xs font-semibold text-muted-foreground hover:text-foreground transition-colors duration-200 whitespace-nowrap" data-i18n="navWorkflow" onmouseenter="movePill(this)" onmouseleave="resetBlogPill()">
+                    Alur Skrining
+                </a>
+                <a href="/#testimonials" class="nav-pill-item relative z-10 px-4 py-2 text-xs font-semibold text-muted-foreground hover:text-foreground transition-colors duration-200 whitespace-nowrap" data-i18n="testiBadge" onmouseenter="movePill(this)" onmouseleave="resetBlogPill()">
+                    Testimonials
+                </a>
+                <a href="/#pricing" class="nav-pill-item relative z-10 px-4 py-2 text-xs font-semibold text-muted-foreground hover:text-foreground transition-colors duration-200 whitespace-nowrap" data-i18n="navPricing" onmouseenter="movePill(this)" onmouseleave="resetBlogPill()">
+                    Paket Layanan
+                </a>
+                <a href="/blog" class="nav-pill-item relative z-10 px-4 py-2 text-xs font-semibold text-emeraldaccent transition-colors duration-200 whitespace-nowrap" data-i18n="navBlog" onmouseenter="movePill(this)" onmouseleave="resetBlogPill()">
+                    Blog
+                </a>
+
+                <!-- Collaboration Dropdown Menu -->
+                <div class="relative group">
+                    <button onclick="toggleCollabMenu(event)" class="nav-pill-item relative z-10 px-4 py-2 text-xs font-semibold text-muted-foreground hover:text-foreground transition-colors duration-200 flex items-center gap-1.5 whitespace-nowrap focus:outline-none" onmouseenter="movePill(this)" onmouseleave="resetBlogPill()">
+                        <span data-i18n="navCollaboration">Collaboration</span>
+                        <span class="text-[10px] opacity-70">▾</span>
+                    </button>
+                    <div id="collabDropdown" class="hidden absolute top-full right-0 mt-3 w-48 bg-card border border-border rounded-2xl shadow-2xl py-2 z-50 backdrop-blur-xl">
+                        <button onclick="openCollabModal('investor')" class="w-full text-left px-4 py-2.5 text-xs font-semibold hover:bg-muted text-muted-foreground hover:text-foreground transition" data-i18n="collabInvestor">Investors</button>
+                        <button onclick="openCollabModal('partnership')" class="w-full text-left px-4 py-2.5 text-xs font-semibold hover:bg-muted text-muted-foreground hover:text-foreground transition" data-i18n="collabPartnership">Partnership</button>
+                    </div>
+                </div>
+            </nav>
+
+            <!-- Language Switcher, Theme Toggle & Action Button -->
+            <div class="flex items-center gap-3">
+                <button onclick="toggleTheme()" class="bg-muted hover:border-primary/40 text-foreground border border-border p-2.5 rounded-xl text-xs font-bold transition flex items-center justify-center focus:outline-none shadow-sm" aria-label="Toggle Theme">
+                    <span id="themeIcon">☀️</span>
+                </button>
+
+                <select id="langSelect" onchange="changeLanguage(this.value)" class="bg-muted text-foreground border border-border text-xs rounded-xl px-3 py-2 font-bold focus:outline-none focus:ring-2 focus:ring-primary shadow-sm">
+                    <option value="id">🇮🇩 ID</option>
+                    <option value="en">🇺🇸 EN</option>
+                    <option value="es">🇪🇸 ES</option>
+                    <option value="pt">🇧🇷 PT</option>
+                </select>
+
+                <a href="/login" class="bg-emeraldaccent hover:opacity-95 text-slate-950 font-extrabold px-5 py-2.5 rounded-xl text-xs transition shadow-lg shadow-emerald-500/20 transform active:scale-95">
+                    <span data-i18n="navLogin">Masuk / Launch App</span>
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- ARTICLE CONTAINER -->
+    <main class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-10">
+        
+        <!-- Tombol Kembali -->
+        <div>
+            <a href="/blog" class="inline-flex items-center gap-2 text-xs font-bold text-primary hover:text-primary/80 transition">
+                ← <span data-i18n="backToBlog">Kembali ke Blog</span>
+            </a>
+        </div>
+
+        <!-- Header Artikel -->
+        <div class="space-y-4">
+            <div class="flex items-center gap-3">
+                <span class="px-3 py-1 rounded-full text-[11px] font-bold bg-primary/10 text-primary border border-primary/30 uppercase tracking-wider" data-i18n="badgeBlog">
+                    Blog
+                </span>
+                <span class="text-xs text-muted-foreground font-mono">📅 <span data-i18n="articleDate">7 Apr 2026</span> • ⏱️ <span data-i18n="readTime">5 menit baca</span></span>
+            </div>
+            
+            <h1 class="text-3xl sm:text-4xl lg:text-5xl font-black text-foreground tracking-tight leading-tight" data-i18n="articleTitle">
+                Alat Prediksi Kesehatan Kedepan Berbasis AI
+            </h1>
+        </div>
+
+        <!-- Hero Graphic Card -->
+        <div class="bg-card border border-border rounded-3xl p-6 sm:p-8 space-y-6 relative overflow-hidden shadow-xl">
+            <div class="absolute -top-24 -right-24 w-72 h-72 bg-primary/10 rounded-full blur-3xl pointer-events-none"></div>
+            
+            <div class="space-y-3">
+                <span class="text-xs font-mono font-bold text-primary uppercase tracking-widest">
+                    <span data-i18n="heroBadge">◆ HUMAN-AI RESONANCE DIAGNOSTIC & THERAPY</span>
+                </span>
+                <h2 class="text-2xl sm:text-3xl font-extrabold text-foreground" data-i18n="heroCardTitle">
+                    Alat Prediksi Kesehatan Kedepan
+                </h2>
+                <p class="text-xs sm:text-sm text-muted-foreground leading-relaxed" data-i18n="heroCardDesc">
+                    Kolaborasi kecerdasan manusia dan AI untuk analisis kesehatan fisik & mental secara holistik dari body scan, profiling psikologis, dan mental, dll.
+                </p>
+            </div>
+        </div>
+
+        <!-- Breadcrumb & Intro Text -->
+        <div class="space-y-4 text-sm text-muted-foreground leading-relaxed border-b border-border/60 pb-8">
+            <p data-i18n="introP1">
+                Banyak orang baru sadar pentingnya kesehatan setelah muncul masalah. Namun sekarang, <strong class="text-foreground">Alat Prediksi Kesehatan Kedepan</strong> memungkinkan kamu mengantisipasi risiko sebelum benar-benar terjadi. Dengan pendekatan ini, <strong class="text-foreground">Sikutaki</strong> membantu mengambil langkah lebih awal agar tetap sehat secara fisik maupun mental.
+            </p>
+            <p data-i18n="introP2">
+                Kami tidak hanya fokus pada kondisi saat ini. Sebaliknya, kami mengembangkan sistem yang membaca pola dan memproyeksikan kemungkinan di masa depan. Dengan begitu, kamu bisa lebih siap menghadapi berbagai potensi risiko.
+            </p>
+        </div>
+
+        <!-- Table of Contents -->
+        <div class="bg-card/80 border border-border rounded-2xl p-6 space-y-4 shadow-sm">
+            <h3 class="text-sm font-bold text-foreground flex items-center gap-2">
+                <span>📋</span> <span data-i18n="tocTitle">Table of Contents</span>
+            </h3>
+            <ul class="space-y-2 text-xs text-muted-foreground font-medium">
+                <li><a href="#section1" class="hover:text-primary transition" data-i18n="toc1">1. Cara Berpikir Baru Tentang Prediksi Kesehatan Kedepan dengan Teknologi AI Modern</a></li>
+                <li><a href="#section2" class="hover:text-primary transition" data-i18n="toc2">2. Peran Alat Prediksi Kesehatan Kedepan dalam Kehidupan Sehari-hari yang Lebih Terarah</a></li>
+                <li><a href="#section3" class="hover:text-primary transition" data-i18n="toc3">3. "Digital Twin" Membangun Simulasi Tubuh di Ruang Siber</a></li>
+                <li><a href="#section4" class="hover:text-primary transition" data-i18n="toc4">4. Integrasi Alat Prediksi Kesehatan Kedepan dengan Platform Digital Modern</a></li>
+                <li><a href="#section5" class="hover:text-primary transition" data-i18n="toc5">5. Langkah Cerdas untuk Menjaga Kesehatan di Masa Depan</a></li>
+            </ul>
+        </div>
+
+        <!-- Article Contents -->
+        <article class="space-y-10 text-sm text-muted-foreground leading-relaxed">
+            
+            <section id="section1" class="space-y-4">
+                <h2 class="text-xl font-bold text-foreground" data-i18n="sec1Title">
+                    Cara Berpikir Baru Tentang Prediksi Kesehatan Kedepan dengan Teknologi AI Modern
+                </h2>
+                <p data-i18n="sec1Desc">
+                    Pendekatan prediktif mengubah cara pandang menjadi lebih proaktif. Oleh karena itu, kamu tidak lagi menunggu masalah datang.
+                </p>
+                
+                <div class="space-y-3 pl-4 border-l-2 border-primary/50">
+                    <h3 class="text-base font-bold text-foreground" data-i18n="sec1Sub1Title">Dari Reaktif Menjadi Proaktif dalam Menjaga Kesehatan</h3>
+                    <p data-i18n="sec1Sub1Desc">
+                        Pendekatan lama membuat orang bertindak setelah memburuk. Sebaliknya, alat prediksi membantu bertindak lebih cepat.
+                    </p>
+
+                    <h3 class="text-base font-bold text-foreground" data-i18n="sec1Sub2Title">Mengandalkan Data untuk Keputusan Lebih Tepat</h3>
+                    <p data-i18n="sec1Sub2Desc">
+                        Dengan dukungan teknologi profesional, sistem memperhitungkan insight yang lebih mendalam dan relevan. Selain itu, kamu tidak perlu lagi mengandalkan asumsi.
+                    </p>
+                </div>
+            </section>
+
+            <section id="section2" class="space-y-4">
+                <h2 class="text-xl font-bold text-foreground" data-i18n="sec2Title">
+                    Peran Alat Prediksi Kesehatan Kedepan dalam Kehidupan Sehari-hari yang Lebih Terarah
+                </h2>
+                <p data-i18n="sec2Desc">
+                    Banyak orang belum menyadari bahwa prediksi kesehatan bisa membantu dalam aktivitas harian. Dengan mengetahui potensi risiko, kamu bisa mengatur pola tidur, aktivitas, dan kebiasaan lainnya. Selain itu, kamu juga bisa menghindari kebiasaan yang berdampak buruk pada tubuh.
+                </p>
+            </section>
+
+            <section id="section3" class="space-y-4">
+                <h2 class="text-xl font-bold text-foreground" data-i18n="sec3Title">
+                    "Digital Twin" Membangun Simulasi Tubuh di Ruang Siber
+                </h2>
+                <p data-i18n="sec3P1">
+                    Alat Prediksi Kesehatan Kedepan membawa konsep baru bernama Digital Twin, yaitu kembaran digital yang merepresentasikan kondisi tubuh kamu secara virtual. Melalui simulasi, Sikutaki memungkinkan sistem AI membandingkan simulasi organ atau sistem tubuh berdasarkan data nyata yang kamu miliki. Oleh karena itu, kamu tidak perlu menebak-nebak dan dapat memahami bagaimana tubuh bisa bereaksi dalam berbagai skenario yang berbeda.
+                </p>
+                <p data-i18n="sec3P2">
+                    Dengan teknologi ini, tenaga medis dapat melakukan simulasi tanpa harus langsung mencoba pada tubuh fisik. Misalnya, sistem dapat memproyeksikan apa yang terjadi jika seseorang mengonsumsi obat tertentu atau menjalani pola diet tertentu. Selain itu, pendekatan ini membantu mengurangi risiko trial and error yang sering terjadi dalam proses pengobatan. Dengan dukungan sistem yang profesional, kamu bisa mengambil keputusan kesehatan dengan lebih aman, terukur, dan berbasis prediksi yang lebih akurat.
+                </p>
+            </section>
+
+            <section id="section4" class="space-y-4">
+                <h2 class="text-xl font-bold text-foreground" data-i18n="sec4Title">
+                    Integrasi Alat Prediksi Kesehatan Kedepan dengan Platform Digital Modern
+                </h2>
+                <p data-i18n="sec4Desc">
+                    Kami merancang sistem agar mudah digunakan oleh siapa saja. Selain itu, platform digital membuat prosesnya lebih efisien.
+                </p>
+
+                <div class="space-y-3 pl-4 border-l-2 border-primary/50">
+                    <h3 class="text-base font-bold text-foreground" data-i18n="sec4Sub1Title">Akses Mudah dalam Satu Platform Alat Prediksi Kesehatan Kedepan</h3>
+                    <p data-i18n="sec4Sub1Desc">
+                        Semua fitur dirancang agar mudah diakses oleh pengguna. Selain itu, platform ini menyatukan berbagai fungsi dalam satu tempat. Hal ini tentu memudahkan kamu dalam memantau kesehatan.
+                    </p>
+
+                    <h3 class="text-base font-bold text-foreground" data-i18n="sec4Sub2Title">Data Terus Berkembang dan Semakin Akurat</h3>
+                    <p data-i18n="sec4Sub2Desc">
+                        Semakin sering menggunakan sistem, maka data yang terkumpul semakin banyak. Akibatnya, hasil prediksi menjadi lebih akurat dari waktu ke waktu.
+                    </p>
+                </div>
+            </section>
+
+            <section id="section5" class="bg-card border border-primary/30 rounded-3xl p-6 sm:p-8 space-y-6 shadow-lg">
+                <h2 class="text-xl font-bold text-foreground" data-i18n="sec5Title">
+                    Langkah Cerdas untuk Menjaga Kesehatan di Masa Depan
+                </h2>
+                <p data-i18n="sec5P1">
+                    Saat ini, menjaga kesehatan tidak cukup hanya dengan pola hidup sehat. Kamu juga perlu memahami potensi risiko yang mungkin muncul.
+                </p>
+                <p data-i18n="sec5P2">
+                    Dengan Sikutaki, kamu bisa memanfaatkan Alat Prediksi Kesehatan Kedepan untuk mengambil langkah yang lebih cerdas. Selain itu, kamu juga bisa mengontrol kesehatan secara lebih aktif. Jika kamu ingin hidup lebih terencana dan minim risiko, maka pendekatan prediktif menjadi pilihan yang tepat. Dengan cara ini, kamu tidak hanya menjaga kesehatan, tetapi juga membangun masa depan yang lebih baik.
+                </p>
+
+                <div class="pt-4 flex flex-col sm:flex-row items-center justify-between gap-4 border-t border-border/60">
+                    <div>
+                        <p class="text-xs text-muted-foreground font-mono" data-i18n="contactLabel">Hubungi Kami:</p>
+                        <p class="text-sm font-bold text-primary">support@sikutaki.com</p>
+                    </div>
+                    <a href="/login" class="w-full sm:w-auto bg-emeraldaccent hover:opacity-95 text-slate-950 font-black px-6 py-3 rounded-2xl text-xs transition text-center shadow-lg shadow-emerald-500/20" data-i18n="startScreening">
+                        Mulai Skrining Sekarang →
+                    </a>
+                </div>
+            </section>
+
+        </article>
+    </main>
+
+    <!-- COLLABORATION POPUP MODAL -->
+    <div id="collabModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm hidden">
+        <div class="bg-card border border-border rounded-3xl p-6 sm:p-8 max-w-md w-full mx-4 shadow-2xl relative space-y-6 transform transition-all">
+            <button onclick="closeCollabModal()" class="absolute top-4 right-4 text-muted-foreground hover:text-foreground text-sm font-bold">✕</button>
+            <div class="flex flex-col items-center text-center space-y-4">
+                <div class="w-12 h-12 rounded-2xl bg-primary/20 border border-primary/40 flex items-center justify-center font-black text-primary text-xl">
+                    S
+                </div>
+                <h3 id="modalTitle" class="text-xl font-extrabold text-foreground"></h3>
+                <p id="modalDesc" class="text-xs sm:text-sm text-muted-foreground leading-relaxed"></p>
+                <a id="modalWhatsAppBtn" href="https://wa.me/6281514603581" target="_blank" class="w-full bg-emeraldaccent hover:opacity-95 text-slate-950 font-extrabold py-3 rounded-xl text-xs transition shadow-lg shadow-emerald-500/20 flex items-center justify-center gap-2">
+                    <span data-i18n="contactWa">Contact via WhatsApp</span>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- FOOTER -->
+    <footer class="border-t border-border py-8 bg-card mt-auto">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-muted-foreground">
+            <p data-i18n="copyRight">© 2026 SIKUTAKI.AI. All rights reserved.</p>
+            <div class="flex items-center gap-6">
+                <a href="#" class="hover:text-foreground" data-i18n="footPrivacy">Kebijakan Privasi</a>
+                <a href="#" class="hover:text-foreground" data-i18n="footTerms">Syarat & Ketentuan</a>
+                <a href="#" class="hover:text-foreground" data-i18n="footContact">Dukungan Kontak</a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- SCRIPT MULTI-LANGUAGE (ID, EN, ES, PT), THEME, COLLABORATION & FLOATING PILL NAVBAR -->
+    <script>
+        const translations = {
+            id: {
+                navFeatures: "Fitur",
+                navWorkflow: "Alur Skrining",
+                testiBadge: "Testimonials",
+                navPricing: "Paket Layanan",
+                navBlog: "Blog",
+                navLogin: "Masuk / Launch App",
+                navCollaboration: "Collaboration",
+                collabInvestor: "Investors",
+                collabPartnership: "Partnership",
+                contactWa: "Contact via WhatsApp",
+                modalInvestorTitle: "Investors",
+                modalInvestorDesc: "Untuk investor, filantropis, impact investor, angel, badan pemerintah, entitas swasta, atau individu yang terpanggil berkontribusi pada kesehatan sumber daya manusia bangsa — baik mental maupun fisik — silakan hubungi PIC-Farid (081514603581).",
+                modalPartnershipTitle: "Partnership",
+                modalPartnershipDesc: "Kami terbuka untuk berbagai bentuk kolaborasi strategis guna membangun ekosistem kesehatan mental dan fisik yang lebih baik bagi masyarakat, bangsa, dan negara.",
+                backToBlog: "Kembali ke Blog",
+                badgeBlog: "Blog",
+                readTime: "5 menit baca",
+                articleTitle: "Alat Prediksi Kesehatan Kedepan Berbasis AI",
+                heroCardTitle: "Alat Prediksi Kesehatan Kedepan",
+                heroCardDesc: "Kolaborasi kecerdasan manusia dan AI untuk analisis kesehatan fisik & mental secara holistik dari body scan, profiling psikologis, dan mental, dll.",
+                introP1: "Banyak orang baru sadar pentingnya kesehatan setelah muncul masalah. Namun sekarang, Alat Prediksi Kesehatan Kedepan memungkinkan kamu mengantisipasi risiko sebelum benar-benar terjadi. Dengan pendekatan ini, Sikutaki membantu mengambil langkah lebih awal agar tetap sehat secara fisik maupun mental.",
+                introP2: "Kami tidak hanya fokus pada kondisi saat ini. Sebaliknya, kami mengembangkan sistem yang membaca pola dan memproyeksikan kemungkinan di masa depan. Dengan begitu, kamu bisa lebih siap menghadapi berbagai potensi risiko.",
+                tocTitle: "Table of Contents",
+                toc1: "1. Cara Berpikir Baru Tentang Prediksi Kesehatan Kedepan dengan Teknologi AI Modern",
+                toc2: "2. Peran Alat Prediksi Kesehatan Kedepan dalam Kehidupan Sehari-hari yang Lebih Terarah",
+                toc3: "3. \"Digital Twin\" Membangun Simulasi Tubuh di Ruang Siber",
+                toc4: "4. Integrasi Alat Prediksi Kesehatan Kedepan dengan Platform Digital Modern",
+                toc5: "5. Langkah Cerdas untuk Menjaga Kesehatan di Masa Depan",
+                sec1Title: "Cara Berpikir Baru Tentang Prediksi Kesehatan Kedepan dengan Teknologi AI Modern",
+                sec1Desc: "Pendekatan prediktif mengubah cara pandang menjadi lebih proaktif. Oleh karena itu, kamu tidak lagi menunggu masalah datang.",
+                sec1Sub1Title: "Dari Reaktif Menjadi Proaktif dalam Menjaga Kesehatan",
+                sec1Sub1Desc: "Pendekatan lama membuat orang bertindak setelah memburuk. Sebaliknya, alat prediksi membantu bertindak lebih cepat.",
+                sec1Sub2Title: "Mengandalkan Data untuk Keputusan Lebih Tepat",
+                sec1Sub2Desc: "Dengan dukungan teknologi profesional, sistem memperhitungkan insight yang lebih mendalam dan relevan. Selain itu, kamu tidak perlu lagi mengandalkan asumsi.",
+                sec2Title: "Peran Alat Prediksi Kesehatan Kedepan dalam Kehidupan Sehari-hari yang Lebih Terarah",
+                sec2Desc: "Banyak orang belum menyadari bahwa prediksi kesehatan bisa membantu dalam aktivitas harian. Dengan mengetahui potensi risiko, kamu bisa mengatur pola tidur, aktivitas, dan kebiasaan lainnya. Selain itu, kamu juga bisa menghindari kebiasaan yang berdampak buruk pada tubuh.",
+                sec3Title: "\"Digital Twin\" Membangun Simulasi Tubuh di Ruang Siber",
+                sec3P1: "Alat Prediksi Kesehatan Kedepan membawa konsep baru bernama Digital Twin, yaitu kembaran digital yang merepresentasikan kondisi tubuh kamu secara virtual. Melalui simulasi, Sikutaki memungkinkan sistem AI membandingkan simulasi organ atau sistem tubuh berdasarkan data nyata yang kamu miliki. Oleh karena itu, kamu tidak perlu menebak-nebak dan dapat memahami bagaimana tubuh bisa bereaksi dalam berbagai skenario yang berbeda.",
+                sec3P2: "Dengan teknologi ini, tenaga medis dapat melakukan simulasi tanpa harus langsung mencoba pada tubuh fisik. Misalnya, sistem dapat memproyeksikan apa yang terjadi jika seseorang mengonsumsi obat tertentu atau menjalani pola diet tertentu. Selain itu, pendekatan ini membantu mengurangi risiko trial and error yang sering terjadi dalam proses pengobatan. Dengan dukungan sistem yang profesional, kamu bisa mengambil keputusan kesehatan dengan lebih aman, terukur, dan berbasis prediksi yang lebih akurat.",
+                sec4Title: "Integrasi Alat Prediksi Kesehatan Kedepan dengan Platform Digital Modern",
+                sec4Desc: "Kami merancang sistem agar mudah digunakan oleh siapa saja. Selain itu, platform digital membuat prosesnya lebih efisien.",
+                sec4Sub1Title: "Akses Mudah dalam Satu Platform Alat Prediksi Kesehatan Kedepan",
+                sec4Sub1Desc: "Semua fitur dirancang agar mudah diakses oleh pengguna. Selain itu, platform ini menyatukan berbagai fungsi dalam satu tempat. Hal ini tentu memudahkan kamu dalam memantau kesehatan.",
+                sec4Sub2Title: "Data Terus Berkembang dan Semakin Akurat",
+                sec4Sub2Desc: "Semakin sering menggunakan sistem, maka data yang terkumpul semakin banyak. Akibatnya, hasil prediksi menjadi lebih akurat dari waktu ke waktu.",
+                sec5Title: "Langkah Cerdas untuk Menjaga Kesehatan di Masa Depan",
+                sec5P1: "Saat ini, menjaga kesehatan tidak cukup hanya dengan pola hidup sehat. Kamu juga perlu memahami potensi risiko yang mungkin muncul.",
+                sec5P2: "Dengan Sikutaki, kamu bisa memanfaatkan Alat Prediksi Kesehatan Kedepan untuk mengambil langkah yang lebih cerdas. Selain itu, kamu juga bisa mengontrol kesehatan secara lebih aktif. Jika kamu ingin hidup lebih terencana dan minim risiko, maka pendekatan prediktif menjadi pilihan yang tepat. Dengan cara ini, kamu tidak hanya menjaga kesehatan, tetapi juga membangun masa depan yang lebih baik.",
+                contactLabel: "Hubungi Kami:",
+                startScreening: "Mulai Skrining Sekarang →",
+                heroBadge: "◆ DIAGNOSTIK & TERAPI RESONANSI MANUSIA-AI",
+                articleDate: "7 Apr 2026",
+                copyRight: "© 2026 SIKUTAKI.AI. Hak cipta dilindungi.",
+                footPrivacy: "Kebijakan Privasi",
+                footTerms: "Syarat & Ketentuan",
+                footContact: "Dukungan Kontak",
+            },
+            en: {
+                navFeatures: "Features",
+                navWorkflow: "Workflow",
+                testiBadge: "Testimonials",
+                navPricing: "Pricing",
+                navBlog: "Blog",
+                navLogin: "Login / Launch App",
+                navCollaboration: "Collaboration",
+                collabInvestor: "Investors",
+                collabPartnership: "Partnership",
+                contactWa: "Contact via WhatsApp",
+                modalInvestorTitle: "Investors",
+                modalInvestorDesc: "For investors, philanthropists, impact investors, angels, government bodies, private entities, or individuals who are called to contribute to the nation's human resource health — whether mental or physical — please contact PIC-Farid (081514603581).",
+                modalPartnershipTitle: "Partnership",
+                modalPartnershipDesc: "We are open to various forms of strategic collaboration. Let's build a better mental and physical health ecosystem for the community, nation, and country.",
+                backToBlog: "Back to Blog",
+                badgeBlog: "Blog",
+                readTime: "5 min read",
+                articleTitle: "AI-Based Future Health Prediction Tools",
+                heroCardTitle: "Future Health Prediction Tools",
+                heroCardDesc: "Collaboration of human intelligence and AI for holistic physical and mental health analysis from body scans, psychological profiling, and more.",
+                introP1: "Many people only realize the importance of health after a problem arises. However, Future Health Prediction Tools allow you to anticipate risks before they actually happen. With this approach, Sikutaki helps you take early steps to stay physically and mentally healthy.",
+                introP2: "We do not only focus on current conditions. Instead, we develop systems that read patterns and project future possibilities, so you are better prepared for potential risks.",
+                tocTitle: "Table of Contents",
+                toc1: "1. A New Way of Thinking About Future Health Prediction with Modern AI Technology",
+                toc2: "2. The Role of Future Health Prediction Tools in a More Directed Daily Life",
+                toc3: "3. \"Digital Twin\": Building Body Simulations in Cyberspace",
+                toc4: "4. Integrating Future Health Prediction Tools with Modern Digital Platforms",
+                toc5: "5. Smart Steps to Maintain Future Health",
+                sec1Title: "A New Way of Thinking About Future Health Prediction with Modern AI Technology",
+                sec1Desc: "Predictive approaches shift perspective to become more proactive, meaning you no longer wait for problems to arise.",
+                sec1Sub1Title: "From Reactive to Proactive in Health Maintenance",
+                sec1Sub1Desc: "Traditional approaches react after health deteriorates. Predictive tools empower early action.",
+                sec1Sub2Title: "Relying on Data for Better Decisions",
+                sec1Sub2Desc: "With professional technology support, systems calculate deeper and more relevant insights without relying on guesswork.",
+                sec2Title: "The Role of Future Health Prediction Tools in a More Directed Daily Life",
+                sec2Desc: "Knowing potential health risks helps you optimize sleep patterns, activities, and daily habits while avoiding harmful routines.",
+                sec3Title: "\"Digital Twin\": Building Body Simulations in Cyberspace",
+                sec3P1: "Future Health Prediction Tools introduce the Digital Twin concept—a virtual representation of your body. Sikutaki enables AI to simulate organ responses based on your real data.",
+                sec3P2: "Medical professionals can perform simulations safely without physical trial and error, evaluating potential medication or dietary impacts for accurate decision-making.",
+                sec4Title: "Integrating Future Health Prediction Tools with Modern Digital Platforms",
+                sec4Desc: "We designed the system for seamless usability, unifying functions into an efficient platform.",
+                sec4Sub1Title: "Easy Access in One Predictive Health Platform",
+                sec4Sub1Desc: "All features are unified in one place to streamline ongoing personal health monitoring.",
+                sec4Sub2Title: "Continuously Evolving and Increasing Accuracy",
+                sec4Sub2Desc: "As you interact with the system, accumulated data continuously improves prediction accuracy over time.",
+                sec5Title: "Smart Steps to Maintain Future Health",
+                sec5P1: "Maintaining health requires understanding future risks alongside maintaining healthy lifestyle habits.",
+                sec5P2: "With Sikutaki, leverage Future Health Prediction Tools for proactive, well-planned, and risk-minimized living.",
+                contactLabel: "Contact Us:",
+                startScreening: "Start Screening Now →",
+                heroBadge: "◆ HUMAN-AI RESONANCE DIAGNOSTIC & THERAPY",
+                articleDate: "Apr 7, 2026",
+                copyRight: "© 2026 SIKUTAKI.AI. All rights reserved.",
+                footPrivacy: "Privacy Policy",
+                footTerms: "Terms & Conditions",
+                footContact: "Contact Support",
+            },
+            es: {
+                navFeatures: "Características",
+                navWorkflow: "Flujo de Trabajo",
+                testiBadge: "Testimonials",
+                navPricing: "Planes",
+                navBlog: "Blog",
+                navLogin: "Iniciar Sesión",
+                navCollaboration: "Colaboración",
+                collabInvestor: "Inversionistas",
+                collabPartnership: "Asociación",
+                contactWa: "Contactar vía WhatsApp",
+                modalInvestorTitle: "Inversionistas",
+                modalInvestorDesc: "Para inversores, filántropos, ángeles, entidades gubernamentales o privadas interesadas en contribuir a la salud de los recursos humanos, comuníquese con PIC-Farid (081514603581).",
+                modalPartnershipTitle: "Asociación",
+                modalPartnershipDesc: "Estamos abiertos a diversas formas de colaboración estratégica para construir un mejor ecosistema de salud mental y física.",
+                backToBlog: "Volver al Blog",
+                badgeBlog: "Blog",
+                readTime: "5 min de lectura",
+                articleTitle: "Herramientas de Predicción de Salud Futura con IA",
+                heroCardTitle: "Herramientas de Predicción de Salud Futura",
+                heroCardDesc: "Colaboración de inteligencia humana e IA para análisis de salud física y mental a partir de escaneos corporales y perfiles psicológicos.",
+                introP1: "Las Herramientas de Predicción de Salud Futura te permiten anticipar riesgos antes de que ocurran. Con Sikutaki, tomas decisiones tempranas para mantenerte saludable física y mentalmente.",
+                introP2: "Nos enfocamos en proyectar posibilidades futuras mediante patrones para que estés preparado.",
+                tocTitle: "Tabla de Contenido",
+                toc1: "1. Nueva Forma de Pensar sobre la Predicción de Salud Futura con IA",
+                toc2: "2. Rol de las Herramientas de Predicción en la Vida Diaria",
+                toc3: "3. \"Gemelo Digital\": Construyendo Simulaciones del Cuerpo en el Ciberespacio",
+                toc4: "4. Integración de Herramientas de Predicción con Plataformas Digitales",
+                toc5: "5. Pasos Inteligentes para Cuidar la Salud Futura",
+                sec1Title: "Nueva Forma de Pensar sobre la Predicción de Salud Futura con IA",
+                sec1Desc: "Un enfoque predictivo transforma la perspectiva para ser más proactivo en el cuidado de la salud.",
+                sec1Sub1Title: "De Reactivo a Proactivo en el Cuidado de la Salud",
+                sec1Sub1Desc: "Actúa a tiempo en lugar de esperar a que la salud empeore.",
+                sec1Sub2Title: "Basado en Datos para Tomar Mejores Decisiones",
+                sec1Sub2Desc: "Sistemas avanzados calculan perspectivas profundas para decisiones sin suposiciones.",
+                sec2Title: "Rol de las Herramientas de Predicción en la Vida Diaria",
+                sec2Desc: "Conocer riesgos potenciales permite optimizar hábitos de sueño y rutina diaria.",
+                sec3Title: "\"Gemelo Digital\": Construyendo Simulaciones del Cuerpo en el Ciberespacio",
+                sec3P1: "Un Gemelo Digital crea una representación virtual de tu cuerpo para simular reacciones del organismo con precisión.",
+                sec3P2: "Permite simular tratamientos o dietas minimizando riesgos de ensayo y error.",
+                sec4Title: "Integración de Herramientas de Predicción con Plataformas Digitales",
+                sec4Desc: "Plataformas digitales integradas que facilitan el monitoreo de salud continuo.",
+                sec4Sub1Title: "Acceso Fácil en una Sola Plataforma",
+                sec4Sub1Desc: "Unifica funciones en un solo lugar para un seguimiento de salud más cómodo.",
+                sec4Sub2Title: "Precisión Continuamente Evolutiva",
+                sec4Sub2Desc: "El uso continuo incrementa la precisión de los datos y predicciones.",
+                sec5Title: "Pasos Inteligentes para Cuidar la Salud Futura",
+                sec5P1: "Comprende riesgos futuros junto con hábitos saludables.",
+                sec5P2: "Usa Sikutaki para tomar el control de tu salud con decisiones predictivas y planificadas.",
+                contactLabel: "Contáctenos:",
+                startScreening: "Iniciar Skrining →",
+                heroBadge: "◆ DIAGNÓSTICO Y TERAPIA DE RESONANCIA HUMANA-IA",
+                articleDate: "7 abr 2026",
+                copyRight: "© 2026 SIKUTAKI.AI. Todos los derechos reservados.",
+                footPrivacy: "Política de Privacidad",
+                footTerms: "Términos y Condiciones",
+                footContact: "Soporte de Contacto",
+            },
+            pt: {
+                navFeatures: "Recursos",
+                navWorkflow: "Fluxo de Trabalho",
+                testiBadge: "Testimonials",
+                navPricing: "Planos",
+                navBlog: "Blog",
+                navLogin: "Entrar / Iniciar",
+                navCollaboration: "Colaboração",
+                collabInvestor: "Investidores",
+                collabPartnership: "Parceria",
+                contactWa: "Contato via WhatsApp",
+                modalInvestorTitle: "Investidores",
+                modalInvestorDesc: "Para investidores, filantropos, anjos, órgãos governamentais ou entidades privadas que desejam contribuir para a saúde de recursos humanos, entre em contato com PIC-Farid (081514603581).",
+                modalPartnershipTitle: "Parceria",
+                modalPartnershipDesc: "Estamos abertos a várias formas de colaboração estratégica para construir um ecossistema de saúde melhor.",
+                backToBlog: "Voltar ao Blog",
+                badgeBlog: "Blog",
+                readTime: "5 min de leitura",
+                articleTitle: "Ferramentas de Predição de Saúde Futura com IA",
+                heroCardTitle: "Ferramentas de Predição de Saúde Futura",
+                heroCardDesc: "Colaboração entre inteligência humana e IA para análise holística de saúde física e mental.",
+                introP1: "Ferramentas de Predição de Saúde Futura permitem antecipar riscos antes que aconteçam. Com a Sikutaki, você toma medidas precoces para se manter saudável.",
+                introP2: "Projetamos possibilidades futuras com base em padrões reais para sua melhor preparação.",
+                tocTitle: "Índice",
+                toc1: "1. Nova Forma de Pensar sobre Predição de Saúde com IA",
+                toc2: "2. O Papel das Ferramentas de Predição no Dia a Dia",
+                toc3: "3. \"Gêmeo Digital\": Construindo Simulações do Corpo no Ciberespaço",
+                toc4: "4. Integração de Ferramentas de Predição com Plataformas Digitais",
+                toc5: "5. Passos Inteligentes para Cuidar da Saúde Futura",
+                sec1Title: "Nova Forma de Pensar sobre Predição de Saúde com IA",
+                sec1Desc: "Abordagens preditivas tornam seus cuidados de saúde proativos.",
+                sec1Sub1Title: "De Reativo a Proativo na Manutenção da Saúde",
+                sec1Sub1Desc: "Aja precocemente em vez de esperar complicações de saúde.",
+                sec1Sub2Title: "Base de Dados para Melhores Decisões",
+                sec1Sub2Desc: "Sistemas profissionais fornecem insights profundos e dados precisos.",
+                sec2Title: "O Papel das Ferramentas de Predição no Dia a Dia",
+                sec2Desc: "Identifique riscos potenciais para otimizar sono, atividades e hábitos alimentares.",
+                sec3Title: "\"Gêmeo Digital\": Construindo Simulações do Corpo no Ciberespaço",
+                sec3P1: "O Gêmeo Digital recria uma versão virtual do seu corpo para simular respostas biológicas com exatidão.",
+                sec3P2: "Permite simular tratamentos e dietas sem expor seu corpo a riscos de tentativa e erro.",
+                sec4Title: "Integração de Ferramentas de Predição com Plataformas Digitais",
+                sec4Desc: "Sistemas unificados para facilidade e eficiência no monitoramento diário.",
+                sec4Sub1Title: "Acesso Fácil em Uma Única Plataforma",
+                sec4Sub1Desc: "Reúne múltiplos recursos de monitoramento em um único ambiente digital.",
+                sec4Sub2Title: "Precisão em Evolução Contínua",
+                sec4Sub2Desc: "A utilização diária enriquece os dados, aumentando a exatidão preditiva.",
+                sec5Title: "Passos Inteligentes para Cuidar da Saúde Futura",
+                sec5P1: "Preveja riscos futuros combinando inteligência artificial e rotina saudável.",
+                sec5P2: "Utilize a Sikutaki para uma vida com mais planejamento e prevenção ativa.",
+                contactLabel: "Contate-nos:",
+                startScreening: "Iniciar Skrining →",
+                heroBadge: "◆ DIAGNÓSTICO E TERAPIA DE RESSONÂNCIA HUMANA-IA",
+                articleDate: "7 abr 2026",
+                copyRight: "© 2026 SIKUTAKI.AI. Todos os direitos reservados.",
+                footPrivacy: "Política de Privacidade",
+                footTerms: "Termos e Condições",
+                footContact: "Suporte de Contato",
+            }
+        };
+
+        function changeLanguage(lang) {
+            localStorage.setItem('sikutaki-lang', lang);
+            const t = translations[lang] || translations['id'];
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                if (t[key]) {
+                    el.textContent = t[key];
+                }
+            });
+            document.documentElement.lang = lang;
+        }
+
+        function toggleTheme() {
+            const htmlEl = document.documentElement;
+            const themeIcon = document.getElementById('themeIcon');
+            if (htmlEl.classList.contains('dark')) {
+                htmlEl.classList.remove('dark');
+                if (themeIcon) themeIcon.textContent = '☀️';
+                localStorage.setItem('sikutaki-theme', 'light');
+            } else {
+                htmlEl.classList.add('dark');
+                if (themeIcon) themeIcon.textContent = '🌙';
+                localStorage.setItem('sikutaki-theme', 'dark');
+            }
+        }
+
+        function toggleCollabMenu(event) {
+            event.stopPropagation();
+            const dropdown = document.getElementById('collabDropdown');
+            dropdown.classList.toggle('hidden');
+        }
+
+        window.addEventListener('click', () => {
+            const dropdown = document.getElementById('collabDropdown');
+            if (dropdown && !dropdown.classList.contains('hidden')) {
+                dropdown.classList.add('hidden');
+            }
+        });
+
+        function openCollabModal(type) {
+            const modal = document.getElementById('collabModal');
+            const titleEl = document.getElementById('modalTitle');
+            const descEl = document.getElementById('modalDesc');
+            
+            const currentLang = localStorage.getItem('sikutaki-lang') || 'id';
+            const t = translations[currentLang] || translations['id'];
+
+            if (type === 'investor') {
+                titleEl.textContent = t.modalInvestorTitle;
+                descEl.textContent = t.modalInvestorDesc;
+            } else if (type === 'partnership') {
+                titleEl.textContent = t.modalPartnershipTitle;
+                descEl.textContent = t.modalPartnershipDesc;
+            }
+
+            modal.classList.remove('hidden');
+            document.getElementById('collabDropdown').classList.add('hidden');
+        }
+
+        function closeCollabModal() {
+            document.getElementById('collabModal').classList.add('hidden');
+        }
+
+        function movePill(element) {
+            const indicator = document.getElementById('navPillIndicator');
+            if (!indicator || !element) return;
+            
+            const left = element.offsetLeft;
+            const width = element.offsetWidth;
+            
+            indicator.style.left = `${left}px`;
+            indicator.style.width = `${width}px`;
+            indicator.style.opacity = '1';
+        }
+
+        function resetBlogPill() {
+            const blogMenu = document.querySelector('nav a[href="/blog"]');
+            if (blogMenu) {
+                movePill(blogMenu);
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const savedTheme = localStorage.getItem('sikutaki-theme');
+            const htmlEl = document.documentElement;
+            const themeIcon = document.getElementById('themeIcon');
+            
+            if (savedTheme === 'dark') {
+                htmlEl.classList.add('dark');
+                if (themeIcon) themeIcon.textContent = '🌙';
+            } else {
+                htmlEl.classList.remove('dark');
+                if (themeIcon) themeIcon.textContent = '☀️';
+            }
+
+            const savedLang = localStorage.getItem('sikutaki-lang') || 'id';
+            const langSelect = document.getElementById('langSelect');
+            if (langSelect) langSelect.value = savedLang;
+            changeLanguage(savedLang);
+
+            const blogMenu = document.querySelector('nav a[href="/blog"]');
+            if (blogMenu) {
+                setTimeout(() => movePill(blogMenu), 100);
+            }
+        });
+    </script>
+    <script src="{{ url_for('static', filename='js/sikutaki-ui.js') }}"></script>
+</body>
+</html>

@@ -1,0 +1,683 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Terapi Digital Holistik untuk Hidup Lebih Seimbang - SIKUTAKI.AI</title>
+    <!-- Sinkronisasi tema dari localStorage (Default Light jika belum ada pilihan) -->
+    <script>
+        (function() {
+            const savedTheme = localStorage.getItem('sikutaki-theme');
+            if (savedTheme === 'dark') {
+                document.documentElement.classList.add('dark');
+            } else {
+                document.documentElement.classList.remove('dark');
+            }
+        })();
+    </script>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+                        mono: ['"JetBrains Mono"', 'monospace']
+                    },
+                    colors: {
+                        background: 'var(--background)',
+                        foreground: 'var(--foreground)',
+                        primary: 'var(--primary)',
+                        emeraldaccent: '#10b981',
+                        muted: 'var(--muted)',
+                        'muted-foreground': 'var(--muted-foreground)',
+                        border: 'var(--border)',
+                        card: 'var(--card)',
+                        'card-foreground': 'var(--card-foreground)',
+                        destructive: 'var(--destructive)'
+                    }
+                }
+            }
+        }
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        /* Variabel Warna Sistem Adaptif (Light Default) */
+        :root {
+            --background: #f1f5f9;
+            --foreground: #0f172a;
+            --primary: #059669;
+            --muted: #e8eef5;
+            --muted-foreground: #475569;
+            --card: #ffffff;
+            --card-foreground: #0f172a;
+            --border: #cbd5e1;
+            --glow: rgba(16, 185, 129, 0.35);
+        }
+
+        .dark {
+            color-scheme: dark;
+            --background: #070d1b;
+            --foreground: #e2e8f0;
+            --primary: #10b981;
+            --muted: #111a2e;
+            --muted-foreground: #94a3b8;
+            --card: #0f172a;
+            --card-foreground: #e2e8f0;
+            --border: #1e293b;
+            --glow: rgba(16, 185, 129, 0.55);
+        }
+
+        body {
+            background-color: var(--background);
+            color: var(--foreground);
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            -webkit-font-smoothing: antialiased;
+            transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+        }
+    </style>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/sikutaki-ui.css') }}">
+</head>
+<body class="bg-background text-foreground antialiased selection:bg-emerald-500 selection:text-slate-950 min-h-screen flex flex-col justify-between">
+
+    <!-- HEADER / NAVIGATION BAR -->
+    <header class="sticky top-0 z-50 backdrop-blur-xl bg-card/90 border-b border-border transition-colors duration-300">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+            <!-- Logo Saja -->
+            <div class="flex items-center gap-3">
+                <a href="/" class="flex items-center gap-2">
+                    <div class="w-10 h-10 rounded-xl bg-emeraldaccent/20 border border-emeraldaccent/40 flex items-center justify-center font-extrabold text-emeraldaccent text-xl tracking-tighter">
+                        S
+                    </div>
+                    <span class="font-extrabold text-xl tracking-tight text-foreground">SIKUTAKI<span class="text-primary">.AI</span></span>
+                </a>
+            </div>
+
+            <!-- Nav Links dengan Animasi Floating Pill Slider -->
+            <nav class="hidden lg:flex items-center relative bg-muted/60 dark:bg-slate-900/60 backdrop-blur-md p-1.5 rounded-full border border-border/80 shadow-inner">
+                <!-- Indikator Slide Animasi Mengikuti Kursor -->
+                <div id="navPillIndicator" class="absolute top-1.5 bottom-1.5 rounded-full bg-emeraldaccent/20 dark:bg-emeraldaccent/30 border border-emeraldaccent/40 shadow-sm transition-all duration-300 ease-out pointer-events-none opacity-0"></div>
+
+                <!-- Menu Items -->
+                <a href="/#features" class="nav-pill-item relative z-10 px-4 py-2 text-xs font-semibold text-muted-foreground hover:text-foreground transition-colors duration-200 whitespace-nowrap" data-i18n="navFeatures" onmouseenter="movePill(this)" onmouseleave="resetBlogPill()">
+                    Fitur
+                </a>
+                <a href="/#workflow" class="nav-pill-item relative z-10 px-4 py-2 text-xs font-semibold text-muted-foreground hover:text-foreground transition-colors duration-200 whitespace-nowrap" data-i18n="navWorkflow" onmouseenter="movePill(this)" onmouseleave="resetBlogPill()">
+                    Alur Skrining
+                </a>
+                <a href="/#testimonials" class="nav-pill-item relative z-10 px-4 py-2 text-xs font-semibold text-muted-foreground hover:text-foreground transition-colors duration-200 whitespace-nowrap" data-i18n="testiBadge" onmouseenter="movePill(this)" onmouseleave="resetBlogPill()">
+                    Testimonials
+                </a>
+                <a href="/#pricing" class="nav-pill-item relative z-10 px-4 py-2 text-xs font-semibold text-muted-foreground hover:text-foreground transition-colors duration-200 whitespace-nowrap" data-i18n="navPricing" onmouseenter="movePill(this)" onmouseleave="resetBlogPill()">
+                    Paket Layanan
+                </a>
+                <a href="/blog" class="nav-pill-item relative z-10 px-4 py-2 text-xs font-semibold text-emeraldaccent transition-colors duration-200 whitespace-nowrap" data-i18n="navBlog" onmouseenter="movePill(this)" onmouseleave="resetBlogPill()">
+                    Blog
+                </a>
+
+                <!-- Collaboration Dropdown Menu -->
+                <div class="relative group">
+                    <button onclick="toggleCollabMenu(event)" class="nav-pill-item relative z-10 px-4 py-2 text-xs font-semibold text-muted-foreground hover:text-foreground transition-colors duration-200 flex items-center gap-1.5 whitespace-nowrap focus:outline-none" onmouseenter="movePill(this)" onmouseleave="resetBlogPill()">
+                        <span data-i18n="navCollaboration">Collaboration</span>
+                        <span class="text-[10px] opacity-70">▾</span>
+                    </button>
+                    <div id="collabDropdown" class="hidden absolute top-full right-0 mt-3 w-48 bg-card border border-border rounded-2xl shadow-2xl py-2 z-50 backdrop-blur-xl">
+                        <button onclick="openCollabModal('investor')" class="w-full text-left px-4 py-2.5 text-xs font-semibold hover:bg-muted text-muted-foreground hover:text-foreground transition" data-i18n="collabInvestor">Investors</button>
+                        <button onclick="openCollabModal('partnership')" class="w-full text-left px-4 py-2.5 text-xs font-semibold hover:bg-muted text-muted-foreground hover:text-foreground transition" data-i18n="collabPartnership">Partnership</button>
+                    </div>
+                </div>
+            </nav>
+
+            <!-- Language Switcher, Theme Toggle & Action Button -->
+            <div class="flex items-center gap-3">
+                <button onclick="toggleTheme()" class="bg-muted hover:border-primary/40 text-foreground border border-border p-2.5 rounded-xl text-xs font-bold transition flex items-center justify-center focus:outline-none shadow-sm" aria-label="Toggle Theme">
+                    <span id="themeIcon">☀️</span>
+                </button>
+
+                <select id="langSelect" onchange="changeLanguage(this.value)" class="bg-muted text-foreground border border-border text-xs rounded-xl px-3 py-2 font-bold focus:outline-none focus:ring-2 focus:ring-primary shadow-sm">
+                    <option value="id">🇮🇩 ID</option>
+                    <option value="en">🇺🇸 EN</option>
+                    <option value="es">🇪🇸 ES</option>
+                    <option value="pt">🇧🇷 PT</option>
+                </select>
+
+                <a href="/login" class="bg-emeraldaccent hover:opacity-95 text-slate-950 font-extrabold px-5 py-2.5 rounded-xl text-xs transition shadow-lg shadow-emerald-500/20 transform active:scale-95">
+                    <span data-i18n="navLogin">Masuk / Launch App</span>
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- ARTICLE CONTAINER -->
+    <main class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-10">
+        
+        <!-- Tombol Kembali -->
+        <div>
+            <a href="/blog" class="inline-flex items-center gap-2 text-xs font-bold text-primary hover:text-primary/80 transition">
+                ← <span data-i18n="backToBlog">Kembali ke Blog</span>
+            </a>
+        </div>
+
+        <!-- Header Artikel -->
+        <div class="space-y-4">
+            <div class="flex items-center gap-3">
+                <span class="px-3 py-1 rounded-full text-[11px] font-bold bg-primary/10 text-primary border border-primary/30 uppercase tracking-wider" data-i18n="badgeBlog">
+                    Blog
+                </span>
+                <span class="text-xs text-muted-foreground font-mono">📅 <span data-i18n="articleDate">7 Apr 2026</span> • ⏱️ <span data-i18n="readTime">4 menit baca</span></span>
+            </div>
+            
+            <h1 class="text-3xl sm:text-4xl lg:text-5xl font-black text-foreground tracking-tight leading-tight" data-i18n="articleTitle">
+                Terapi Digital Holistik untuk Hidup Lebih Seimbang
+            </h1>
+        </div>
+
+        <!-- Hero Graphic Card -->
+        <div class="bg-card border border-border rounded-3xl p-6 sm:p-8 space-y-6 relative overflow-hidden shadow-xl">
+            <div class="absolute -top-24 -right-24 w-72 h-72 bg-primary/10 rounded-full blur-3xl pointer-events-none"></div>
+            
+            <div class="space-y-3">
+                <span class="text-xs font-mono font-bold text-primary uppercase tracking-widest">
+                    <span data-i18n="heroBadge">◆ HUMAN-AI RESONANCE DIAGNOSTIC & THERAPY</span>
+                </span>
+                <h2 class="text-2xl sm:text-3xl font-extrabold text-foreground" data-i18n="heroCardTitle">
+                    Terapi Digital Holistik
+                </h2>
+                <p class="text-xs sm:text-sm text-muted-foreground leading-relaxed" data-i18n="heroCardDesc">
+                    Kolaborasi kecerdasan manusia dan AI untuk analisis kesehatan fisik & mental secara holistik dari body scan, profiling psikologis, dan mental, dll.
+                </p>
+            </div>
+        </div>
+
+        <!-- Breadcrumb & Intro Text -->
+        <div class="space-y-4 text-sm text-muted-foreground leading-relaxed border-b border-border/60 pb-8">
+            <p data-i18n="introP1">
+                Banyak orang merasa hidup berjalan cepat, tetapi kondisi tubuh dan pikiran justru tertinggal. <strong class="text-foreground">Terapi Digital Holistik</strong> hadir sebagai solusi untuk membantu kamu kembali menemukan keseimbangan. Melalui pendekatan ini, <strong class="text-foreground">Sikutaki</strong> menggabungkan teknologi dan pemahaman manusia secara menyeluruh agar kamu bisa merasakan perubahan yang nyata.
+            </p>
+            <p data-i18n="introP2">
+                Kami sering menemukan pengguna yang hanya ingin "coba-coba". Namun, setelah menjalani prosesnya, mereka mulai menyadari bahwa kesehatan tidak bisa dipisahkan antara fisik dan mental. Oleh karena itu, terapi holistik menjadi semakin relevan di era sekarang.
+            </p>
+        </div>
+
+        <!-- Table of Contents -->
+        <div class="bg-card/80 border border-border rounded-2xl p-6 space-y-4 shadow-sm">
+            <h3 class="text-sm font-bold text-foreground flex items-center gap-2">
+                <span>📋</span> <span data-i18n="tocTitle">Table of Contents</span>
+            </h3>
+            <ul class="space-y-2 text-xs text-muted-foreground font-medium">
+                <li><a href="#section1" class="hover:text-primary transition" data-i18n="toc1">1. Mengapa Terapi Digital Holistik adalah Pilihan Gaya Hidup Modern Seimbang</a></li>
+                <li><a href="#section2" class="hover:text-primary transition" data-i18n="toc2">2. Pengalaman Nyata Menggunakan Terapi Digital Holistik dalam Aktivitas Harian</a></li>
+                <li><a href="#section3" class="hover:text-primary transition" data-i18n="toc3">3. Digital Detox vs. Digital Therapy, Menemukan Titik Tengah</a></li>
+                <li><a href="#section4" class="hover:text-primary transition" data-i18n="toc4">4. Peran Teknologi dalam Terapi Digital Holistik yang Lebih Personal dan Relevan</a></li>
+                <li><a href="#section5" class="hover:text-primary transition" data-i18n="toc5">5. Waktunya Kembali Mengendalikan Keseimbangan dengan Terapi Digital Holistik</a></li>
+            </ul>
+        </div>
+
+        <!-- Article Contents -->
+        <article class="space-y-10 text-sm text-muted-foreground leading-relaxed">
+            
+            <section id="section1" class="space-y-4">
+                <h2 class="text-xl font-bold text-foreground" data-i18n="sec1Title">
+                    Mengapa Terapi Digital Holistik adalah Pilihan Gaya Hidup Modern Seimbang
+                </h2>
+                <p data-i18n="sec1Desc">
+                    Gaya hidup modern membawa banyak tekanan. Selain itu, aktivitas yang padat sering membuat orang mengabaikan kondisi diri sendiri. Terapi Digital Holistik menawarkan pendekatan yang lebih fleksibel dan menyatu dengan kehidupan sehari-hari.
+                </p>
+                
+                <div class="space-y-3 pl-4 border-l-2 border-primary/50">
+                    <h3 class="text-base font-bold text-foreground" data-i18n="sec1Sub1Title">Hidup Cepat Membutuhkan Solusi yang Adaptif</h3>
+                    <p data-i18n="sec1Sub1Desc">
+                        Banyak orang tidak memiliki waktu untuk mengikuti terapi konvensional. Karena itu, solusi digital menjadi pilihan yang lebih realistis. Dengan cara ini, kamu tetap bisa menjaga kesehatan tanpa mengganggu aktivitas utama.
+                    </p>
+
+                    <h3 class="text-base font-bold text-foreground" data-i18n="sec1Sub2Title">Keseimbangan Fisik dan Mental Tidak Bisa Dipisahkan</h3>
+                    <p data-i18n="sec1Sub2Desc">
+                        Sering kali, orang hanya fokus pada satu aspek saja. Padahal, tubuh dan pikiran saling memengaruhi. Pendekatan holistik membantu kamu memahami hubungan tersebut secara lebih lebih jelas.
+                    </p>
+                </div>
+            </section>
+
+            <section id="section2" class="space-y-4">
+                <h2 class="text-xl font-bold text-foreground" data-i18n="sec2Title">
+                    Pengalaman Nyata Menggunakan Terapi Digital Holistik dalam Aktivitas Harian
+                </h2>
+                <p data-i18n="sec2Desc">
+                    Kami di Sikutaki merancang terapi agar bisa menyatu dengan rutinitas kamu. Selain itu, pengalaman yang diberikan terasa lebih natural.
+                </p>
+
+                <div class="space-y-3 pl-4 border-l-2 border-primary/50">
+                    <h3 class="text-base font-bold text-foreground" data-i18n="sec2Sub1Title">Terapi yang Masuk ke Rutinitas Tanpa Disadari</h3>
+                    <p data-i18n="sec2Sub1Desc">
+                        Kamu tidak perlu mengubah jadwal harian. Sebaliknya, terapi hadir sebagai bagian dari aktivitas kamu. Misalnya, sistem memberikan rekomendasi saat kamu sedang merasa lelah atau stres.
+                    </p>
+
+                    <h3 class="text-base font-bold text-foreground" data-i18n="sec2Sub2Title">Perubahan Kecil yang Memberikan Dampak Besar</h3>
+                    <p data-i18n="sec2Sub2Desc">
+                        Dengan begitu, hampir kamu bisa mengubah pergerakan harus besar. Namun, terapi ini fokus pada langkah kecil yang konsisten. Dengan demikian, hasil yang kamu rasakan menjadi lebih stabil dan berkelanjutan.
+                    </p>
+                </div>
+            </section>
+
+            <section id="section3" class="space-y-4">
+                <h2 class="text-xl font-bold text-foreground" data-i18n="sec3Title">
+                    Digital Detox vs. Digital Therapy, Menemukan Titik Tengah
+                </h2>
+                <p data-i18n="sec3P1">
+                    Terapi Digital Holistik untuk Hidup Lebih Seimbang mendorong kamu untuk menjauh sepenuhnya dari teknologi. Sebaliknya, pendekatan ini mengajak kamu mengubah fungsi perangkat digital dari sumber distraksi menjadi alat regulasi diri. Sikutaki melihat bahwa notifikasi media sosial, dan arus informasi yang berlebihan sering memicu stres. Oleh karena itu, strategi yang lebih relevan bukan menghindari teknologi, melainkan mengelolanya dengan lebih sadar dan terarah.
+                </p>
+                <p data-i18n="sec3P2">
+                    Kami menerapkan konsep "kurasi digital", yaitu memilih secara aktif apa yang kamu konsumsi di ruang siber. Misalnya, kamu bisa meningkatkan penggunaan konten yang memicu kecemasan dan menggantinya dengan aktivitas yang mendukung pemulihan mental. Selalu, kamu juga bisa mengatur waktu penggunaan agar tetap seimbang. Dengan pendekatan yang profesional, ruang digital kamu berubahan menjadi tempat yang membantu memulihkan energi, bukan justru mengurasnya.
+                </p>
+            </section>
+
+            <section id="section4" class="space-y-4">
+                <h2 class="text-xl font-bold text-foreground" data-i18n="sec4Title">
+                    Peran Teknologi dalam Terapi Digital Holistik yang Lebih Personal dan Relevan
+                </h2>
+                <p data-i18n="sec4Desc">
+                    Teknologi memainkan peran penting dalam mengoptimalkan pengalaman terapi yang efektif. Selain itu, AI membantu menyesuaikan pendekatan dengan kondisi pengguna.
+                </p>
+            </section>
+
+            <section id="section5" class="bg-card border border-primary/30 rounded-3xl p-6 sm:p-8 space-y-6 shadow-lg">
+                <h2 class="text-xl font-bold text-foreground" data-i18n="sec5Title">
+                    Waktunya Kembali Mengendalikan Keseimbangan dengan Terapi Digital Holistik
+                </h2>
+                <p data-i18n="sec5P1">
+                    Saat hidup terasa tidak seimbang, kamu membutuhkan pendekatan yang tepat. Dengan Sikutaki, kamu bisa merasakan Terapi Digital Holistik yang menyatu dengan kehidupan sehari-hari.
+                </p>
+                <p data-i18n="sec5P2">
+                    Selain itu, kamu juga tidak perlu melakukan perubahan drastis. Bahkan, kamu bisa memulai dari langkah kecil yang konsisten. Jika kamu ingin hidup lebih tenang, fokus, dan seimbang, maka pendekatan ini menjadi pilihan yang tepat.
+                </p>
+
+                <div class="pt-4 flex flex-col sm:flex-row items-center justify-between gap-4 border-t border-border/60">
+                    <div>
+                        <p class="text-xs text-muted-foreground font-mono" data-i18n="contactLabel">Hubungi Kami:</p>
+                        <p class="text-sm font-bold text-primary">support@sikutaki.com</p>
+                    </div>
+                    <a href="/login" class="w-full sm:w-auto bg-emeraldaccent hover:opacity-95 text-slate-950 font-black px-6 py-3 rounded-2xl text-xs transition text-center shadow-lg shadow-emerald-500/20" data-i18n="startScreening">
+                        Mulai Skrining Sekarang →
+                    </a>
+                </div>
+            </section>
+
+        </article>
+    </main>
+
+    <!-- COLLABORATION POPUP MODAL -->
+    <div id="collabModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm hidden">
+        <div class="bg-card border border-border rounded-3xl p-6 sm:p-8 max-w-md w-full mx-4 shadow-2xl relative space-y-6 transform transition-all">
+            <button onclick="closeCollabModal()" class="absolute top-4 right-4 text-muted-foreground hover:text-foreground text-sm font-bold">✕</button>
+            <div class="flex flex-col items-center text-center space-y-4">
+                <div class="w-12 h-12 rounded-2xl bg-primary/20 border border-primary/40 flex items-center justify-center font-black text-primary text-xl">
+                    S
+                </div>
+                <h3 id="modalTitle" class="text-xl font-extrabold text-foreground"></h3>
+                <p id="modalDesc" class="text-xs sm:text-sm text-muted-foreground leading-relaxed"></p>
+                <a id="modalWhatsAppBtn" href="https://wa.me/6281514603581" target="_blank" class="w-full bg-emeraldaccent hover:opacity-95 text-slate-950 font-extrabold py-3 rounded-xl text-xs transition shadow-lg shadow-emerald-500/20 flex items-center justify-center gap-2">
+                    <span data-i18n="contactWa">Contact via WhatsApp</span>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- FOOTER -->
+    <footer class="border-t border-border py-8 bg-card mt-auto">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-muted-foreground">
+            <p data-i18n="copyRight">© 2026 SIKUTAKI.AI. All rights reserved.</p>
+            <div class="flex items-center gap-6">
+                <a href="#" class="hover:text-foreground" data-i18n="footPrivacy">Kebijakan Privasi</a>
+                <a href="#" class="hover:text-foreground" data-i18n="footTerms">Syarat & Ketentuan</a>
+                <a href="#" class="hover:text-foreground" data-i18n="footContact">Dukungan Kontak</a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- SCRIPT MULTI-LANGUAGE (ID, EN, ES, PT), THEME, COLLABORATION & FLOATING PILL NAVBAR -->
+    <script>
+        const translations = {
+            id: {
+                navFeatures: "Fitur",
+                navWorkflow: "Alur Skrining",
+                testiBadge: "Testimonials",
+                navPricing: "Paket Layanan",
+                navBlog: "Blog",
+                navLogin: "Masuk / Launch App",
+                navCollaboration: "Collaboration",
+                collabInvestor: "Investors",
+                collabPartnership: "Partnership",
+                contactWa: "Contact via WhatsApp",
+                modalInvestorTitle: "Investors",
+                modalInvestorDesc: "Untuk investor, filantropis, impact investor, angel, badan pemerintah, entitas swasta, atau individu yang terpanggil berkontribusi pada kesehatan sumber daya manusia bangsa — baik mental maupun fisik — silakan hubungi PIC-Farid (081514603581).",
+                modalPartnershipTitle: "Partnership",
+                modalPartnershipDesc: "Kami terbuka untuk berbagai bentuk kolaborasi strategis guna membangun ekosistem kesehatan mental dan fisik yang lebih baik bagi masyarakat, bangsa, dan negara.",
+                backToBlog: "Kembali ke Blog",
+                badgeBlog: "Blog",
+                readTime: "4 menit baca",
+                articleTitle: "Terapi Digital Holistik untuk Hidup Lebih Seimbang",
+                heroCardTitle: "Terapi Digital Holistik",
+                heroCardDesc: "Kolaborasi kecerdasan manusia dan AI untuk analisis kesehatan fisik & mental secara holistik dari body scan, profiling psikologis, dan mental, dll.",
+                introP1: "Banyak orang merasa hidup berjalan cepat, tetapi kondisi tubuh dan pikiran justru tertinggal. Terapi Digital Holistik hadir sebagai solusi untuk membantu kamu kembali menemukan keseimbangan. Melalui pendekatan ini, Sikutaki menggabungkan teknologi dan pemahaman manusia secara menyeluruh agar kamu bisa merasakan perubahan yang nyata.",
+                introP2: "Kami sering menemukan pengguna yang hanya ingin \"coba-coba\". Namun, setelah menjalani prosesnya, mereka mulai menyadari bahwa kesehatan tidak bisa dipisahkan antara fisik dan mental. Oleh karena itu, terapi holistik menjadi semakin relevan di era sekarang.",
+                tocTitle: "Table of Contents",
+                toc1: "1. Mengapa Terapi Digital Holistik adalah Pilihan Gaya Hidup Modern Seimbang",
+                toc2: "2. Pengalaman Nyata Menggunakan Terapi Digital Holistik dalam Aktivitas Harian",
+                toc3: "3. Digital Detox vs. Digital Therapy, Menemukan Titik Tengah",
+                toc4: "4. Peran Teknologi dalam Terapi Digital Holistik yang Lebih Personal dan Relevan",
+                toc5: "5. Waktunya Kembali Mengendalikan Keseimbangan dengan Terapi Digital Holistik",
+                sec1Title: "Mengapa Terapi Digital Holistik adalah Pilihan Gaya Hidup Modern Seimbang",
+                sec1Desc: "Gaya hidup modern membawa banyak tekanan. Selain itu, aktivitas yang padat sering membuat orang mengabaikan kondisi diri sendiri. Terapi Digital Holistik menawarkan pendekatan yang lebih fleksibel dan menyatu dengan kehidupan sehari-hari.",
+                sec1Sub1Title: "Hidup Cepat Membutuhkan Solusi yang Adaptif",
+                sec1Sub1Desc: "Banyak orang tidak memiliki waktu untuk mengikuti terapi konvensional. Karena itu, solusi digital menjadi pilihan yang lebih realistis. Dengan cara ini, kamu tetap bisa menjaga kesehatan tanpa mengganggu aktivitas utama.",
+                sec1Sub2Title: "Keseimbangan Fisik dan Mental Tidak Bisa Dipisahkan",
+                sec1Sub2Desc: "Sering kali, orang hanya fokus pada satu aspek saja. Padahal, tubuh dan pikiran saling memengaruhi. Pendekatan holistik membantu kamu memahami hubungan tersebut secara lebih lebih jelas.",
+                sec2Title: "Pengalaman Nyata Menggunakan Terapi Digital Holistik dalam Aktivitas Harian",
+                sec2Desc: "Kami di Sikutaki merancang terapi agar bisa menyatu dengan rutinitas kamu. Selain itu, pengalaman yang diberikan terasa lebih natural.",
+                sec2Sub1Title: "Terapi yang Masuk ke Rutinitas Tanpa Disadari",
+                sec2Sub1Desc: "Kamu tidak perlu mengubah jadwal harian. Sebaliknya, terapi hadir sebagai bagian dari aktivitas kamu. Misalnya, sistem memberikan rekomendasi saat kamu sedang merasa lelah atau stres.",
+                sec2Sub2Title: "Perubahan Kecil yang Memberikan Dampak Besar",
+                sec2Sub2Desc: "Dengan begitu, hampir kamu bisa mengubah pergerakan harus besar. Namun, terapi ini fokus pada langkah kecil yang konsisten. Dengan demikian, hasil yang kamu rasakan menjadi lebih stabil dan berkelanjutan.",
+                sec3Title: "Digital Detox vs. Digital Therapy, Menemukan Titik Tengah",
+                sec3P1: "Terapi Digital Holistik untuk Hidup Lebih Seimbang mendorong kamu untuk menjauh sepenuhnya dari teknologi. Sebaliknya, pendekatan ini mengajak kamu mengubah fungsi perangkat digital dari sumber distraksi menjadi alat regulasi diri. Sikutaki melihat bahwa notifikasi media sosial, dan arus informasi yang berlebihan sering memicu stres. Oleh karena itu, strategi yang lebih relevan bukan menghindari teknologi, melainkan mengelolanya dengan lebih sadar dan terarah.",
+                sec3P2: "Kami menerapkan konsep \"kurasi digital\", yaitu memilih secara aktif apa yang kamu konsumsi di ruang siber. Misalnya, kamu bisa meningkatkan penggunaan konten yang memicu kecemasan dan menggantinya dengan aktivitas yang mendukung pemulihan mental. Selalu, kamu juga bisa mengatur waktu penggunaan agar tetap seimbang. Dengan pendekatan yang profesional, ruang digital kamu berubahan menjadi tempat yang membantu memulihkan energi, bukan justru mengurasnya.",
+                sec4Title: "Peran Teknologi dalam Terapi Digital Holistik yang Lebih Personal dan Relevan",
+                sec4Desc: "Teknologi memainkan peran penting dalam mengoptimalkan pengalaman terapi yang efektif. Selain itu, AI membantu menyesuaikan pendekatan dengan kondisi pengguna.",
+                sec5Title: "Waktunya Kembali Mengendalikan Keseimbangan dengan Terapi Digital Holistik",
+                sec5P1: "Saat hidup terasa tidak seimbang, kamu membutuhkan pendekatan yang tepat. Dengan Sikutaki, kamu bisa merasakan Terapi Digital Holistik yang menyatu dengan kehidupan sehari-hari.",
+                sec5P2: "Selain itu, kamu juga tidak perlu melakukan perubahan drastis. Bahkan, kamu bisa memulai dari langkah kecil yang konsisten. Jika kamu ingin hidup lebih tenang, fokus, dan seimbang, maka pendekatan ini menjadi pilihan yang tepat.",
+                contactLabel: "Hubungi Kami:",
+                startScreening: "Mulai Skrining Sekarang →",
+                heroBadge: "◆ DIAGNOSTIK & TERAPI RESONANSI MANUSIA-AI",
+                articleDate: "7 Apr 2026",
+                copyRight: "© 2026 SIKUTAKI.AI. Hak cipta dilindungi.",
+                footPrivacy: "Kebijakan Privasi",
+                footTerms: "Syarat & Ketentuan",
+                footContact: "Dukungan Kontak",
+            },
+            en: {
+                navFeatures: "Features",
+                navWorkflow: "Workflow",
+                testiBadge: "Testimonials",
+                navPricing: "Pricing",
+                navBlog: "Blog",
+                navLogin: "Login / Launch App",
+                navCollaboration: "Collaboration",
+                collabInvestor: "Investors",
+                collabPartnership: "Partnership",
+                contactWa: "Contact via WhatsApp",
+                modalInvestorTitle: "Investors",
+                modalInvestorDesc: "For investors, philanthropists, impact investors, angels, government bodies, private entities, or individuals who are called to contribute to the nation's human resource health — whether mental or physical — please contact PIC-Farid (081514603581).",
+                modalPartnershipTitle: "Partnership",
+                modalPartnershipDesc: "We are open to various forms of strategic collaboration. Let's build a better mental and physical health ecosystem for the community, nation, and country.",
+                backToBlog: "Back to Blog",
+                badgeBlog: "Blog",
+                readTime: "4 min read",
+                articleTitle: "Holistic Digital Therapy for a More Balanced Life",
+                heroCardTitle: "Holistic Digital Therapy",
+                heroCardDesc: "Collaboration of human intelligence and AI for holistic physical and mental health analysis from body scans, psychological profiling, and more.",
+                introP1: "Many people feel life moves fast while body and mind lag behind. Holistic Digital Therapy is here to help you restore balance. Through this approach, Sikutaki combines technology and human understanding so you can experience real change.",
+                introP2: "We often find users who just want to 'try it out'. However, after going through the process, they begin to realize that health cannot be separated between physical and mental. Therefore, holistic therapy is becoming increasingly relevant today.",
+                tocTitle: "Table of Contents",
+                toc1: "1. Why Holistic Digital Therapy is a Balanced Modern Lifestyle Choice",
+                toc2: "2. Real Experience Using Holistic Digital Therapy in Daily Activities",
+                toc3: "3. Digital Detox vs. Digital Therapy, Finding the Middle Ground",
+                toc4: "4. The Role of Technology in More Personal and Relevant Holistic Digital Therapy",
+                toc5: "5. Time to Regain Control of Balance with Holistic Digital Therapy",
+                sec1Title: "Why Holistic Digital Therapy is a Balanced Modern Lifestyle Choice",
+                sec1Desc: "Modern lifestyle brings many pressures. In addition, busy activities often make people ignore their own condition. Holistic Digital Therapy offers a more flexible approach integrated into daily life.",
+                sec1Sub1Title: "Fast Living Requires Adaptive Solutions",
+                sec1Sub1Desc: "Many people lack time for conventional therapy. Therefore, digital solutions are a more realistic choice. This way, you can maintain health without disrupting main activities.",
+                sec1Sub2Title: "Physical and Mental Balance Cannot Be Separated",
+                sec1Sub2Desc: "Often people focus on only one aspect. In fact, body and mind influence each other. A holistic approach helps you understand this relationship more clearly.",
+                sec2Title: "Real Experience Using Holistic Digital Therapy in Daily Activities",
+                sec2Desc: "We at Sikutaki design therapy to integrate seamlessly into your routine. Moreover, the provided experience feels natural.",
+                sec2Sub1Title: "Therapy That Unobtrusively Enters Your Routine",
+                sec2Sub1Desc: "You don't need to change your daily schedule. Instead, therapy comes as part of your activities, providing recommendations when you feel tired or stressed.",
+                sec2Sub2Title: "Small Changes That Make a Big Impact",
+                sec2Sub2Desc: "This therapy focuses on consistent small steps. Thus, the results you feel are more stable and sustainable.",
+                sec3Title: "Digital Detox vs. Digital Therapy, Finding the Middle Ground",
+                sec3P1: "Holistic Digital Therapy encourages changing the function of digital devices from a source of distraction into self-regulation tools. Sikutaki recognizes that excessive social media notifications often trigger stress. Therefore, managing technology consciously is more relevant.",
+                sec3P2: "We apply the concept of 'digital curation', actively choosing what you consume in cyberspace to support mental recovery. With a professional approach, your digital space transforms into an energy-reclaiming sanctuary.",
+                sec4Title: "The Role of Technology in More Personal and Relevant Holistic Digital Therapy",
+                sec4Desc: "Technology plays a crucial role in optimizing effective therapeutic experiences, with AI helping tailor approaches to user conditions.",
+                sec5Title: "Time to Regain Control of Balance with Holistic Digital Therapy",
+                sec5P1: "When life feels unbalanced, you need the right approach. With Sikutaki, you can experience Holistic Digital Therapy integrated into everyday life.",
+                sec5P2: "You don't need drastic changes; you can start with consistent small steps. If you want a calmer, more focused, and balanced life, this approach is your ideal choice.",
+                contactLabel: "Contact Us:",
+                startScreening: "Start Screening Now →",
+                heroBadge: "◆ HUMAN-AI RESONANCE DIAGNOSTIC & THERAPY",
+                articleDate: "Apr 7, 2026",
+                copyRight: "© 2026 SIKUTAKI.AI. All rights reserved.",
+                footPrivacy: "Privacy Policy",
+                footTerms: "Terms & Conditions",
+                footContact: "Contact Support",
+            },
+            es: {
+                navFeatures: "Características",
+                navWorkflow: "Flujo de Trabajo",
+                testiBadge: "Testimonials",
+                navPricing: "Planes",
+                navBlog: "Blog",
+                navLogin: "Iniciar Sesión",
+                navCollaboration: "Colaboración",
+                collabInvestor: "Inversionistas",
+                collabPartnership: "Asociación",
+                contactWa: "Contactar vía WhatsApp",
+                modalInvestorTitle: "Inversionistas",
+                modalInvestorDesc: "Para inversores, filántropos, ángeles, entidades gubernamentales o privadas interesadas en contribuir a la salud de los recursos humanos, comuníquese con PIC-Farid (081514603581).",
+                modalPartnershipTitle: "Asociación",
+                modalPartnershipDesc: "Estamos abiertos a diversas formas de colaboración estratégica para construir un mejor ecosistema de salud mental y física.",
+                backToBlog: "Volver al Blog",
+                badgeBlog: "Blog",
+                readTime: "4 min de lectura",
+                articleTitle: "Terapia Digital Holística para una Vida Más Equilibrada",
+                heroCardTitle: "Terapia Digital Holística",
+                heroCardDesc: "Colaboración de inteligencia humana e IA para análisis de salud física y mental a partir de escaneos corporales, perfiles psicológicos y más.",
+                introP1: "Muchas personas sienten que la vida avanza rápido mientras el cuerpo y la mente se quedan atrás. La Terapia Digital Holística está aquí para ayudarte a recuperar el equilibrio.",
+                introP2: "A menudo encontramos usuarios que solo quieren probar. Sin embargo, tras el proceso, comprenden que la salud física y mental no se pueden separar.",
+                tocTitle: "Tabla de Contenido",
+                toc1: "1. Por qué la Terapia Digital Holística es un Estilo de Vida Equilibrado",
+                toc2: "2. Experiencia Real Usando Terapia Digital Holística en Actividades Diarias",
+                toc3: "3. Desintoxicación Digital vs. Terapia Digital, Encontrando el Punto Medio",
+                toc4: "4. El Rol de la Tecnología en la Terapia Digital Holística Personalizada",
+                toc5: "5. Es Hora de Recuperar el Control del Equilibrio",
+                sec1Title: "Por qué la Terapia Digital Holística es un Estilo de Vida Equilibrado",
+                sec1Desc: "El estilo de vida moderno trae muchas presiones. La Terapia Digital Holística ofrece un enfoque flexible integrado en la vida diaria.",
+                sec1Sub1Title: "La Vida Rápida Requiere Soluciones Adaptativas",
+                sec1Sub1Desc: "Muchas personas carecen de tiempo para terapia convencional, por lo que las soluciones digitales son más realistas.",
+                sec1Sub2Title: "El Balance Físico y Mental No Se Puede Separar",
+                sec1Sub2Desc: "El cuerpo y la mente se influencian mutuamente. El enfoque holístico ayuda a comprender esta relación claramente.",
+                sec2Title: "Experiencia Real Usando Terapia Digital Holística en Actividades Diarias",
+                sec2Desc: "Diseñamos la terapia para integrarse sin problemas en tu rutina de manera natural.",
+                sec2Sub1Title: "Terapia que se Integra en tu Rutina Discretamente",
+                sec2Sub1Desc: "No necesitas cambiar tu horario diario. La terapia llega como parte de tus actividades cotidianas.",
+                sec2Sub2Title: "Pequeños Cambios que Generan Gran Impacto",
+                sec2Sub2Desc: "Esta terapia se enfoca en pequeños pasos consistentes para lograr resultados estables.",
+                sec3Title: "Desintoxicación Digital vs. Terapia Digital, Encontrando el Punto Medio",
+                sec3P1: "La Terapia Digital Holística fomenta transformar los dispositivos en herramientas de autorregulación en lugar de distracciones.",
+                sec3P2: "Aplicamos el concepto de 'curación digital' para apoyar la recuperación mental y transformar tu espacio digital en un refugio.",
+                sec4Title: "El Rol de la Tecnología en la Terapia Digital Holística Personalizada",
+                sec4Desc: "La tecnología optimiza la experiencia terapéutica efectiva adaptándose a las condiciones del usuario con IA.",
+                sec5Title: "Es Hora de Recuperar el Control del Equilibrio",
+                sec5P1: "Cuando la vida se siente desequilibrada, necesitas el enfoque correcto con Sikutaki.",
+                sec5P2: "Comienza con pequeños pasos consistentes hacia una vida más tranquila y equilibrada.",
+                contactLabel: "Contáctenos:",
+                startScreening: "Iniciar Skrining →",
+                heroBadge: "◆ DIAGNÓSTICO Y TERAPIA DE RESONANCIA HUMANA-IA",
+                articleDate: "7 abr 2026",
+                copyRight: "© 2026 SIKUTAKI.AI. Todos los derechos reservados.",
+                footPrivacy: "Política de Privacidad",
+                footTerms: "Términos y Condiciones",
+                footContact: "Soporte de Contacto",
+            },
+            pt: {
+                navFeatures: "Recursos",
+                navWorkflow: "Fluxo de Trabalho",
+                testiBadge: "Testimonials",
+                navPricing: "Planos",
+                navBlog: "Blog",
+                navLogin: "Entrar / Iniciar",
+                navCollaboration: "Colaboração",
+                collabInvestor: "Investidores",
+                collabPartnership: "Parceria",
+                contactWa: "Contato via WhatsApp",
+                modalInvestorTitle: "Investidores",
+                modalInvestorDesc: "Para investidores, filantropos, anjos, órgãos governamentais ou entidades privadas que desejam contribuir para a saúde de recursos humanos, entre em contato com PIC-Farid (081514603581).",
+                modalPartnershipTitle: "Parceria",
+                modalPartnershipDesc: "Estamos abertos a várias formas de colaboração estratégica para construir um ecossistema de saúde melhor.",
+                backToBlog: "Voltar ao Blog",
+                badgeBlog: "Blog",
+                readTime: "4 min de leitura",
+                articleTitle: "Terapia Digital Holística para uma Vida Mais Equilibrada",
+                heroCardTitle: "Terapia Digital Holística",
+                heroCardDesc: "Colaboração entre inteligência humana e IA para análise holística de saúde física e mental.",
+                introP1: "Muitas pessoas sentem que a vida corre rápido enquanto corpo e mente ficam para trás. A Terapia Digital Holística ajuda você a restaurar o equilíbrio.",
+                introP2: "Percebemos que a saúde física e mental não podem ser separadas, tornando a terapia holística altamente relevante hoje.",
+                tocTitle: "Índice",
+                toc1: "1. Por que a Terapia Digital Holística é um Estilo de Vida Equilibrado",
+                toc2: "2. Experiência Real Usando Terapia Digital Holística nas Atividades Diárias",
+                toc3: "3. Digital Detox vs. Terapia Digital, Encontrando o Meio-Termo",
+                toc4: "4. O Papel da Tecnologia na Terapia Digital Holística Personalizada",
+                toc5: "5. Hora de Retomar o Controle do Equilíbrio",
+                sec1Title: "Por que a Terapia Digital Holística é um Estilo de Vida Equilibrado",
+                sec1Desc: "O estilo de vida moderno traz pressões. A Terapia Digital Holística oferece uma abordagem flexível integrada ao cotidiano.",
+                sec1Sub1Title: "A Vida Rápida Exige Soluções Adaptativas",
+                sec1Sub1Desc: "Soluções digitais são escolhas realistas para manter a saúde sem atrapalhar as atividades principais.",
+                sec1Sub2Title: "Equilíbrio Físico e Mental Não Podem Ser Separados",
+                sec1Sub2Desc: "Corpo e mente influenciam-se mutuamente. A abordagem holística esclarece essa relação.",
+                sec2Title: "Experiência Real Usando Terapia Digital Holística nas Atividades Diárias",
+                sec2Desc: "Desenhamos a terapia para se integrar perfeitamente à sua rotina de forma natural.",
+                sec2Sub1Title: "Terapia que se Insere na Rotina Naturalmente",
+                sec2Sub1Desc: "A terapia faz parte das suas atividades diárias, oferecendo suporte quando necessário.",
+                sec2Sub2Title: "Pequenas Mudanças com Grande Impacto",
+                sec2Sub2Desc: "Foco em pequenos passos consistentes para resultados estáveis e sustentáveis.",
+                sec3Title: "Digital Detox vs. Terapia Digital, Encontrando o Meio-Termo",
+                sec3P1: "A Terapia Digital Holística incentiva a transformar dispositivos em ferramentas de autorregulação.",
+                sec3P2: "Aplicamos a 'curadoria digital' para apoiar a recuperação mental e transformar seu espaço digital.",
+                sec4Title: "O Papel da Tecnologia na Terapia Digital Holística Personalizada",
+                sec4Desc: "A tecnologia otimiza a experiência terapêutica usando IA para adaptar abordagens.",
+                sec5Title: "Hora de Retomar o Controle do Equilíbrio",
+                sec5P1: "Quando a vida parecer desequilibrada, experimente a Sikutaki.",
+                sec5P2: "Comece com pequenos passos consistentes rumo a uma vida mais equilibrada.",
+                contactLabel: "Contate-nos:",
+                startScreening: "Iniciar Skrining →",
+                heroBadge: "◆ DIAGNÓSTICO E TERAPIA DE RESSONÂNCIA HUMANA-IA",
+                articleDate: "7 abr 2026",
+                copyRight: "© 2026 SIKUTAKI.AI. Todos os direitos reservados.",
+                footPrivacy: "Política de Privacidade",
+                footTerms: "Termos e Condições",
+                footContact: "Suporte de Contato",
+            }
+        };
+
+        function changeLanguage(lang) {
+            localStorage.setItem('sikutaki-lang', lang);
+            const t = translations[lang] || translations['id'];
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                if (t[key]) {
+                    el.textContent = t[key];
+                }
+            });
+            document.documentElement.lang = lang;
+        }
+
+        function toggleTheme() {
+            const htmlEl = document.documentElement;
+            const themeIcon = document.getElementById('themeIcon');
+            if (htmlEl.classList.contains('dark')) {
+                htmlEl.classList.remove('dark');
+                if (themeIcon) themeIcon.textContent = '☀️';
+                localStorage.setItem('sikutaki-theme', 'light');
+            } else {
+                htmlEl.classList.add('dark');
+                if (themeIcon) themeIcon.textContent = '🌙';
+                localStorage.setItem('sikutaki-theme', 'dark');
+            }
+        }
+
+        function toggleCollabMenu(event) {
+            event.stopPropagation();
+            const dropdown = document.getElementById('collabDropdown');
+            dropdown.classList.toggle('hidden');
+        }
+
+        window.addEventListener('click', () => {
+            const dropdown = document.getElementById('collabDropdown');
+            if (dropdown && !dropdown.classList.contains('hidden')) {
+                dropdown.classList.add('hidden');
+            }
+        });
+
+        function openCollabModal(type) {
+            const modal = document.getElementById('collabModal');
+            const titleEl = document.getElementById('modalTitle');
+            const descEl = document.getElementById('modalDesc');
+            
+            const currentLang = localStorage.getItem('sikutaki-lang') || 'id';
+            const t = translations[currentLang] || translations['id'];
+
+            if (type === 'investor') {
+                titleEl.textContent = t.modalInvestorTitle;
+                descEl.textContent = t.modalInvestorDesc;
+            } else if (type === 'partnership') {
+                titleEl.textContent = t.modalPartnershipTitle;
+                descEl.textContent = t.modalPartnershipDesc;
+            }
+
+            modal.classList.remove('hidden');
+            document.getElementById('collabDropdown').classList.add('hidden');
+        }
+
+        function closeCollabModal() {
+            document.getElementById('collabModal').classList.add('hidden');
+        }
+
+        function movePill(element) {
+            const indicator = document.getElementById('navPillIndicator');
+            if (!indicator || !element) return;
+            
+            const left = element.offsetLeft;
+            const width = element.offsetWidth;
+            
+            indicator.style.left = `${left}px`;
+            indicator.style.width = `${width}px`;
+            indicator.style.opacity = '1';
+        }
+
+        function resetBlogPill() {
+            const blogMenu = document.querySelector('nav a[href="/blog"]');
+            if (blogMenu) {
+                movePill(blogMenu);
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const savedTheme = localStorage.getItem('sikutaki-theme');
+            const htmlEl = document.documentElement;
+            const themeIcon = document.getElementById('themeIcon');
+            
+            if (savedTheme === 'dark') {
+                htmlEl.classList.add('dark');
+                if (themeIcon) themeIcon.textContent = '🌙';
+            } else {
+                htmlEl.classList.remove('dark');
+                if (themeIcon) themeIcon.textContent = '☀️';
+            }
+
+            const savedLang = localStorage.getItem('sikutaki-lang') || 'id';
+            const langSelect = document.getElementById('langSelect');
+            if (langSelect) langSelect.value = savedLang;
+            changeLanguage(savedLang);
+
+            const blogMenu = document.querySelector('nav a[href="/blog"]');
+            if (blogMenu) {
+                setTimeout(() => movePill(blogMenu), 100);
+            }
+        });
+    </script>
+    <script src="{{ url_for('static', filename='js/sikutaki-ui.js') }}"></script>
+</body>
+</html>

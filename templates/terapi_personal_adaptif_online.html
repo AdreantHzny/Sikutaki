@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Terapi Personal Adaptif Online Lebih Fleksibel - SIKUTAKI.AI</title>
+    <!-- Sinkronisasi tema dari localStorage (Default Light jika belum ada pilihan) -->
+    <script>
+        (function() {
+            const savedTheme = localStorage.getItem('sikutaki-theme');
+            if (savedTheme === 'dark') {
+                document.documentElement.classList.add('dark');
+            } else {
+                document.documentElement.classList.remove('dark');
+            }
+        })();
+    </script>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+                        mono: ['"JetBrains Mono"', 'monospace']
+                    },
+                    colors: {
+                        background: 'var(--background)',
+                        foreground: 'var(--foreground)',
+                        primary: 'var(--primary)',
+                        emeraldaccent: '#10b981',
+                        muted: 'var(--muted)',
+                        'muted-foreground': 'var(--muted-foreground)',
+                        border: 'var(--border)',
+                        card: 'var(--card)',
+                        'card-foreground': 'var(--card-foreground)',
+                        destructive: 'var(--destructive)'
+                    }
+                }
+            }
+        }
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        /* Variabel Warna Sistem Adaptif (Light Default) */
+        :root {
+            --background: #f1f5f9;
+            --foreground: #0f172a;
+            --primary: #059669;
+            --muted: #e8eef5;
+            --muted-foreground: #475569;
+            --card: #ffffff;
+            --card-foreground: #0f172a;
+            --border: #cbd5e1;
+            --glow: rgba(16, 185, 129, 0.35);
+        }
+
+        .dark {
+            color-scheme: dark;
+            --background: #070d1b;
+            --foreground: #e2e8f0;
+            --primary: #10b981;
+            --muted: #111a2e;
+            --muted-foreground: #94a3b8;
+            --card: #0f172a;
+            --card-foreground: #e2e8f0;
+            --border: #1e293b;
+            --glow: rgba(16, 185, 129, 0.55);
+        }
+
+        body {
+            background-color: var(--background);
+            color: var(--foreground);
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            -webkit-font-smoothing: antialiased;
+            transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+        }
+    </style>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/sikutaki-ui.css') }}">
+</head>
+<body class="bg-background text-foreground antialiased selection:bg-emerald-500 selection:text-slate-950 min-h-screen flex flex-col justify-between">
+
+    <!-- HEADER / NAVIGATION BAR -->
+    <header class="sticky top-0 z-50 backdrop-blur-xl bg-card/90 border-b border-border transition-colors duration-300">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+            <!-- Logo Saja -->
+            <div class="flex items-center gap-3">
+                <a href="/" class="flex items-center gap-2">
+                    <div class="w-10 h-10 rounded-xl bg-emeraldaccent/20 border border-emeraldaccent/40 flex items-center justify-center font-extrabold text-emeraldaccent text-xl tracking-tighter">
+                        S
+                    </div>
+                    <span class="font-extrabold text-xl tracking-tight text-foreground">SIKUTAKI<span class="text-primary">.AI</span></span>
+                </a>
+            </div>
+
+            <!-- Nav Links dengan Animasi Floating Pill Slider -->
+            <nav class="hidden lg:flex items-center relative bg-muted/60 dark:bg-slate-900/60 backdrop-blur-md p-1.5 rounded-full border border-border/80 shadow-inner">
+                <!-- Indikator Slide Animasi Mengikuti Kursor -->
+                <div id="navPillIndicator" class="absolute top-1.5 bottom-1.5 rounded-full bg-emeraldaccent/20 dark:bg-emeraldaccent/30 border border-emeraldaccent/40 shadow-sm transition-all duration-300 ease-out pointer-events-none opacity-0"></div>
+
+                <!-- Menu Items -->
+                <a href="/#features" class="nav-pill-item relative z-10 px-4 py-2 text-xs font-semibold text-muted-foreground hover:text-foreground transition-colors duration-200 whitespace-nowrap" data-i18n="navFeatures" onmouseenter="movePill(this)" onmouseleave="resetBlogPill()">
+                    Fitur
+                </a>
+                <a href="/#workflow" class="nav-pill-item relative z-10 px-4 py-2 text-xs font-semibold text-muted-foreground hover:text-foreground transition-colors duration-200 whitespace-nowrap" data-i18n="navWorkflow" onmouseenter="movePill(this)" onmouseleave="resetBlogPill()">
+                    Alur Skrining
+                </a>
+                <a href="/#testimonials" class="nav-pill-item relative z-10 px-4 py-2 text-xs font-semibold text-muted-foreground hover:text-foreground transition-colors duration-200 whitespace-nowrap" data-i18n="testiBadge" onmouseenter="movePill(this)" onmouseleave="resetBlogPill()">
+                    Testimonials
+                </a>
+                <a href="/#pricing" class="nav-pill-item relative z-10 px-4 py-2 text-xs font-semibold text-muted-foreground hover:text-foreground transition-colors duration-200 whitespace-nowrap" data-i18n="navPricing" onmouseenter="movePill(this)" onmouseleave="resetBlogPill()">
+                    Paket Layanan
+                </a>
+                <a href="/blog" class="nav-pill-item relative z-10 px-4 py-2 text-xs font-semibold text-emeraldaccent transition-colors duration-200 whitespace-nowrap" data-i18n="navBlog" onmouseenter="movePill(this)" onmouseleave="resetBlogPill()">
+                    Blog
+                </a>
+
+                <!-- Collaboration Dropdown Menu -->
+                <div class="relative group">
+                    <button onclick="toggleCollabMenu(event)" class="nav-pill-item relative z-10 px-4 py-2 text-xs font-semibold text-muted-foreground hover:text-foreground transition-colors duration-200 flex items-center gap-1.5 whitespace-nowrap focus:outline-none" onmouseenter="movePill(this)" onmouseleave="resetBlogPill()">
+                        <span data-i18n="navCollaboration">Collaboration</span>
+                        <span class="text-[10px] opacity-70">▾</span>
+                    </button>
+                    <div id="collabDropdown" class="hidden absolute top-full right-0 mt-3 w-48 bg-card border border-border rounded-2xl shadow-2xl py-2 z-50 backdrop-blur-xl">
+                        <button onclick="openCollabModal('investor')" class="w-full text-left px-4 py-2.5 text-xs font-semibold hover:bg-muted text-muted-foreground hover:text-foreground transition" data-i18n="collabInvestor">Investors</button>
+                        <button onclick="openCollabModal('partnership')" class="w-full text-left px-4 py-2.5 text-xs font-semibold hover:bg-muted text-muted-foreground hover:text-foreground transition" data-i18n="collabPartnership">Partnership</button>
+                    </div>
+                </div>
+            </nav>
+
+            <!-- Language Switcher, Theme Toggle & Action Button -->
+            <div class="flex items-center gap-3">
+                <button onclick="toggleTheme()" class="bg-muted hover:border-primary/40 text-foreground border border-border p-2.5 rounded-xl text-xs font-bold transition flex items-center justify-center focus:outline-none shadow-sm" aria-label="Toggle Theme">
+                    <span id="themeIcon">☀️</span>
+                </button>
+
+                <select id="langSelect" onchange="changeLanguage(this.value)" class="bg-muted text-foreground border border-border text-xs rounded-xl px-3 py-2 font-bold focus:outline-none focus:ring-2 focus:ring-primary shadow-sm">
+                    <option value="id">🇮🇩 ID</option>
+                    <option value="en">🇺🇸 EN</option>
+                    <option value="es">🇪🇸 ES</option>
+                    <option value="pt">🇧🇷 PT</option>
+                </select>
+
+                <a href="/login" class="bg-emeraldaccent hover:opacity-95 text-slate-950 font-extrabold px-5 py-2.5 rounded-xl text-xs transition shadow-lg shadow-emerald-500/20 transform active:scale-95">
+                    <span data-i18n="navLogin">Masuk / Launch App</span>
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- ARTICLE CONTAINER -->
+    <main class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-10">
+        
+        <!-- Tombol Kembali -->
+        <div>
+            <a href="/blog" class="inline-flex items-center gap-2 text-xs font-bold text-primary hover:text-primary/80 transition">
+                ← <span data-i18n="backToBlog">Kembali ke Blog</span>
+            </a>
+        </div>
+
+        <!-- Header Artikel -->
+        <div class="space-y-4">
+            <div class="flex items-center gap-3">
+                <span class="px-3 py-1 rounded-full text-[11px] font-bold bg-primary/10 text-primary border border-primary/30 uppercase tracking-wider" data-i18n="badgeBlog">
+                    Blog
+                </span>
+                <span class="text-xs text-muted-foreground font-mono">📅 <span data-i18n="articleDate">7 Apr 2026</span> • ⏱️ <span data-i18n="readTime">4 menit baca</span></span>
+            </div>
+            
+            <h1 class="text-3xl sm:text-4xl lg:text-5xl font-black text-foreground tracking-tight leading-tight" data-i18n="articleTitle">
+                Terapi Personal Adaptif Online Lebih Fleksibel
+            </h1>
+        </div>
+
+        <!-- Hero Graphic Card -->
+        <div class="bg-card border border-border rounded-3xl p-6 sm:p-8 space-y-6 relative overflow-hidden shadow-xl">
+            <div class="absolute -top-24 -right-24 w-72 h-72 bg-primary/10 rounded-full blur-3xl pointer-events-none"></div>
+            
+            <div class="space-y-3">
+                <span class="text-xs font-mono font-bold text-primary uppercase tracking-widest">
+                    <span data-i18n="heroBadge">🌱 HUMAN-AI RESONANCE DIAGNOSTIC & THERAPY</span>
+                </span>
+                <h2 class="text-2xl sm:text-3xl font-extrabold text-foreground" data-i18n="heroCardTitle">
+                    Terapi Personal Adaptif Online
+                </h2>
+                <p class="text-xs sm:text-sm text-muted-foreground leading-relaxed" data-i18n="heroCardDesc">
+                    Kolaborasi kecerdasan manusia dan AI untuk analisis kesehatan fisik & mental secara holistik dari body scan, profiling psikologis, dan mental, dll.
+                </p>
+            </div>
+        </div>
+
+        <!-- Breadcrumb & Intro Text -->
+        <div class="space-y-4 text-sm text-muted-foreground leading-relaxed border-b border-border/60 pb-8">
+            <p data-i18n="introP1">
+                Saat ini, banyak orang mulai mencari solusi yang lebih fleksibel untuk menjaga kesehatan mental. <strong class="text-foreground">Terapi Personal Adaptif Online</strong> menjadi pilihan utama karena mampu memberikan pendampingan yang tidak kaku, dapat diakses kapan saja, serta menyesuaikan kebutuhan dinamis penggunanya.
+            </p>
+            <p data-i18n="introP2">
+                Melalui ekosistem kecerdasan buatan dari <strong class="text-foreground">Sikutaki</strong>, terapi online tidak lagi sekadar pesan teks biasa. Sistem ini mempelajari dinamika emosional, respons stres harian, hingga indikator vital tubuh untuk memberikan intervensi yang paling tepat dan relevan secara real time.
+            </p>
+        </div>
+
+        <!-- Table of Contents -->
+        <div class="bg-card/80 border border-border rounded-2xl p-6 space-y-4 shadow-sm">
+            <h3 class="text-sm font-bold text-foreground flex items-center gap-2">
+                <span>📋</span> <span data-i18n="tocTitle">Table of Contents</span>
+            </h3>
+            <ul class="space-y-2 text-xs text-muted-foreground font-medium">
+                <li><a href="#section1" class="hover:text-primary transition" data-i18n="toc1">1. Keunggulan Fleksibilitas dalam Terapi Digital Modern</a></li>
+                <li><a href="#section2" class="hover:text-primary transition" data-i18n="toc2">2. Sistem Adaptif yang Bertumbuh Bersama Pengguna</a></li>
+                <li><a href="#section3" class="hover:text-primary transition" data-i18n="toc3">3. Pendampingan Holistik Fisik & Emosional Kapan Saja</a></li>
+                <li><a href="#section4" class="hover:text-primary transition" data-i18n="toc4">4. Langkah Praktis Memulai Terapi Adaptif Bersama Sikutaki</a></li>
+            </ul>
+        </div>
+
+        <!-- Article Contents -->
+        <article class="space-y-10 text-sm text-muted-foreground leading-relaxed">
+            
+            <section id="section1" class="space-y-4">
+                <h2 class="text-xl font-bold text-foreground" data-i18n="sec1Title">
+                    Keunggulan Fleksibilitas dalam Terapi Digital Modern
+                </h2>
+                <p data-i18n="sec1Desc">
+                    Pendekatan terapi konvensional sering kali terkendala oleh batasan waktu, lokasi, dan jadwal konsultasi yang kaku. Terapi digital adaptif mengatasi tantangan ini dengan menghadirkan pendampingan yang selalu siap kapan pun kamu membutuhkan momen untuk bercerita atau melakukan regulasi emosi.
+                </p>
+                
+                <div class="space-y-3 pl-4 border-l-2 border-primary/50">
+                    <h3 class="text-base font-bold text-foreground" data-i18n="sec1Sub1Title">Aksesibilitas Tanpa Batas Ruang dan Waktu</h3>
+                    <p data-i18n="sec1Sub1Desc">
+                        Kamu tidak perlu lagi menunggu sesi mingguan untuk mengurai stres. Pendampingan dapat dilakukan tepat di saat kamu membutuhkan dukungan moral maupun panduan menenangkan pikiran.
+                    </p>
+
+                    <h3 class="text-base font-bold text-foreground" data-i18n="sec1Sub2Title">Gaya Konseling yang Fleksibel dan Non-Judgemental</h3>
+                    <p data-i18n="sec1Sub2Desc">
+                        Setiap interaksi dirancang agar terasa alami, empati, dan aman tanpa beban penilaian, membuat pengguna merasa lebih terbuka dalam mengekspresikan perasaannya.
+                    </p>
+                </div>
+            </section>
+
+            <section id="section2" class="space-y-4">
+                <h2 class="text-xl font-bold text-foreground" data-i18n="sec2Title">
+                    Sistem Adaptif yang Bertumbuh Bersama Pengguna
+                </h2>
+                <p data-i18n="sec2Desc">
+                    Istilah "adaptif" berarti program terapi tidak bersikap satu ukuran untuk semua (one-size-fits-all). Sebaliknya, rekomendasi latihan pernapasan, jurnal refleksi, hingga action plan harian terus diperbarui menyesuaikan tren tingkat stres dan kebugaran kamu dari hari ke hari.
+                </p>
+            </section>
+
+            <section id="section3" class="space-y-4">
+                <h2 class="text-xl font-bold text-foreground" data-i18n="sec3Title">
+                    Pendampingan Holistik Fisik & Emosional Kapan Saja
+                </h2>
+                <p data-i18n="sec3Desc">
+                    Kesehatan mental tidak bisa dipisahkan dari kondisi fisik. Terapi Personal Adaptif di Sikutaki menghubungkan laporan kualitas tidur, pola aktivitas, dan analisis biometrik fisik untuk memberikan panduan pemulihan yang utuh dan komprehensif.
+                </p>
+            </section>
+
+            <section id="section4" class="bg-card border border-primary/30 rounded-3xl p-6 sm:p-8 space-y-6 shadow-lg">
+                <h2 class="text-xl font-bold text-foreground" data-i18n="sec4Title">
+                    Langkah Praktis Memulai Terapi Adaptif Bersama Sikutaki
+                </h2>
+                <p data-i18n="sec4Desc">
+                    Mulailah perjalanan kesehatan holistik kamu sekarang. Dengan memanfaatkan pemindaian biometrik dan analisis agen AI Sikutaki, kamu bisa mendapatkan panduan terapi personal yang fleksibel, akurat, dan dirancang khusus untuk kenyamanan kamu.
+                </p>
+
+                <div class="pt-4 flex flex-col sm:flex-row items-center justify-between gap-4 border-t border-border/60">
+                    <div>
+                        <p class="text-xs text-muted-foreground font-mono" data-i18n="contactLabel">Dukungan & Layanan:</p>
+                        <p class="text-sm font-bold text-primary">support@sikutaki.com</p>
+                    </div>
+                    <a href="/login" class="w-full sm:w-auto bg-emeraldaccent hover:opacity-95 text-slate-950 font-black px-6 py-3 rounded-2xl text-xs transition text-center shadow-lg shadow-emerald-500/20" data-i18n="startTherapy">
+                        Mulai Terapi Sekarang →
+                    </a>
+                </div>
+            </section>
+
+        </article>
+    </main>
+
+    <!-- COLLABORATION POPUP MODAL -->
+    <div id="collabModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm hidden">
+        <div class="bg-card border border-border rounded-3xl p-6 sm:p-8 max-w-md w-full mx-4 shadow-2xl relative space-y-6 transform transition-all">
+            <button onclick="closeCollabModal()" class="absolute top-4 right-4 text-muted-foreground hover:text-foreground text-sm font-bold">✕</button>
+            <div class="flex flex-col items-center text-center space-y-4">
+                <div class="w-12 h-12 rounded-2xl bg-primary/20 border border-primary/40 flex items-center justify-center font-black text-primary text-xl">
+                    S
+                </div>
+                <h3 id="modalTitle" class="text-xl font-extrabold text-foreground"></h3>
+                <p id="modalDesc" class="text-xs sm:text-sm text-muted-foreground leading-relaxed"></p>
+                <a id="modalWhatsAppBtn" href="https://wa.me/6281514603581" target="_blank" class="w-full bg-emeraldaccent hover:opacity-95 text-slate-950 font-extrabold py-3 rounded-xl text-xs transition shadow-lg shadow-emerald-500/20 flex items-center justify-center gap-2">
+                    <span data-i18n="contactWa">Contact via WhatsApp</span>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- FOOTER -->
+    <footer class="border-t border-border py-8 bg-card mt-auto">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-muted-foreground">
+            <p data-i18n="copyRight">© 2026 SIKUTAKI.AI. All rights reserved.</p>
+            <div class="flex items-center gap-6">
+                <a href="#" class="hover:text-foreground" data-i18n="footPrivacy">Kebijakan Privasi</a>
+                <a href="#" class="hover:text-foreground" data-i18n="footTerms">Syarat & Ketentuan</a>
+                <a href="#" class="hover:text-foreground" data-i18n="footContact">Dukungan Kontak</a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- SCRIPT MULTI-LANGUAGE (ID, EN, ES, PT), THEME, COLLABORATION & FLOATING PILL NAVBAR -->
+    <script>
+        const translations = {
+            id: {
+                navFeatures: "Fitur",
+                navWorkflow: "Alur Skrining",
+                testiBadge: "Testimonials",
+                navPricing: "Paket Layanan",
+                navBlog: "Blog",
+                navLogin: "Masuk / Launch App",
+                navCollaboration: "Collaboration",
+                collabInvestor: "Investors",
+                collabPartnership: "Partnership",
+                contactWa: "Contact via WhatsApp",
+                modalInvestorTitle: "Investors",
+                modalInvestorDesc: "Untuk investor, filantropis, impact investor, angel, badan pemerintah, entitas swasta, atau individu yang terpanggil berkontribusi pada kesehatan sumber daya manusia bangsa — baik mental maupun fisik — silakan hubungi PIC-Farid (081514603581).",
+                modalPartnershipTitle: "Partnership",
+                modalPartnershipDesc: "Kami terbuka untuk berbagai bentuk kolaborasi strategis guna membangun ekosistem kesehatan mental dan fisik yang lebih baik bagi masyarakat, bangsa, dan negara.",
+                backToBlog: "Kembali ke Blog",
+                badgeBlog: "Blog",
+                readTime: "4 menit baca",
+                articleTitle: "Terapi Personal Adaptif Online Lebih Fleksibel",
+                heroCardTitle: "Terapi Personal Adaptif Online",
+                heroCardDesc: "Kolaborasi kecerdasan manusia dan AI untuk analisis kesehatan fisik & mental secara holistik dari body scan, profiling psikologis, dan mental, dll.",
+                introP1: "Saat ini, banyak orang mulai mencari solusi yang lebih fleksibel untuk menjaga kesehatan mental. Terapi Personal Adaptif Online menjadi pilihan utama karena mampu memberikan pendampingan yang tidak kaku, dapat diakses kapan saja, serta menyesuaikan kebutuhan dinamis penggunanya.",
+                introP2: "Melalui ekosistem kecerdasan buatan dari Sikutaki, terapi online tidak lagi sekadar pesan teks biasa. Sistem ini mempelajari dinamika emosional, respons stres harian, hingga indikator vital tubuh untuk memberikan intervensi yang paling tepat dan relevan secara real time.",
+                tocTitle: "Table of Contents",
+                toc1: "1. Keunggulan Fleksibilitas dalam Terapi Digital Modern",
+                toc2: "2. Sistem Adaptif yang Bertumbuh Bersama Pengguna",
+                toc3: "3. Pendampingan Holistik Fisik & Emosional Kapan Saja",
+                toc4: "4. Langkah Praktis Memulai Terapi Adaptif Bersama Sikutaki",
+                sec1Title: "Keunggulan Fleksibilitas dalam Terapi Digital Modern",
+                sec1Desc: "Pendekatan terapi konvensional sering kali terkendala oleh batasan waktu, lokasi, dan jadwal konsultasi yang kaku. Terapi digital adaptif mengatasi tantangan ini dengan menghadirkan pendampingan yang selalu siap kapan pun kamu membutuhkan momen untuk bercerita atau melakukan regulasi emosi.",
+                sec1Sub1Title: "Aksesibilitas Tanpa Batas Ruang dan Waktu",
+                sec1Sub1Desc: "Kamu tidak perlu lagi menunggu sesi mingguan untuk mengurai stres. Pendampingan dapat dilakukan tepat di saat kamu membutuhkan dukungan moral maupun panduan menenangkan pikiran.",
+                sec1Sub2Title: "Gaya Konseling yang Fleksibel dan Non-Judgemental",
+                sec1Sub2Desc: "Setiap interaksi dirancang agar terasa alami, empati, dan aman tanpa beban penilaian, membuat pengguna merasa lebih terbuka dalam mengekspresikan perasaannya.",
+                sec2Title: "Sistem Adaptif yang Bertumbuh Bersama Pengguna",
+                sec2Desc: "Istilah \"adaptif\" berarti program terapi tidak bersikap satu ukuran untuk semua (one-size-fits-all). Sebaliknya, rekomendasi latihan pernapasan, jurnal refleksi, hingga action plan harian terus diperbarui menyesuaikan tren tingkat stres dan kebugaran kamu dari hari ke hari.",
+                sec3Title: "Pendampingan Holistik Fisik & Emosional Kapan Saja",
+                sec3Desc: "Kesehatan mental tidak bisa dipisahkan dari kondisi fisik. Terapi Personal Adaptif di Sikutaki menghubungkan laporan kualitas tidur, pola aktivitas, dan analisis biometrik fisik untuk memberikan panduan pemulihan yang utuh dan komprehensif.",
+                sec4Title: "Langkah Praktis Memulai Terapi Adaptif Bersama Sikutaki",
+                sec4Desc: "Mulailah perjalanan kesehatan holistik kamu sekarang. Dengan memanfaatkan pemindaian biometrik dan analisis agen AI Sikutaki, kamu bisa mendapatkan panduan terapi personal yang fleksibel, akurat, dan dirancang khusus untuk kenyamanan kamu.",
+                contactLabel: "Dukungan & Layanan:",
+                startTherapy: "Mulai Terapi Sekarang →",
+                heroBadge: "🌱 DIAGNOSTIK & TERAPI RESONANSI MANUSIA-AI",
+                articleDate: "7 Apr 2026",
+                copyRight: "© 2026 SIKUTAKI.AI. Hak cipta dilindungi.",
+                footPrivacy: "Kebijakan Privasi",
+                footTerms: "Syarat & Ketentuan",
+                footContact: "Dukungan Kontak",
+            },
+            en: {
+                navFeatures: "Features",
+                navWorkflow: "Workflow",
+                testiBadge: "Testimonials",
+                navPricing: "Pricing",
+                navBlog: "Blog",
+                navLogin: "Login / Launch App",
+                navCollaboration: "Collaboration",
+                collabInvestor: "Investors",
+                collabPartnership: "Partnership",
+                contactWa: "Contact via WhatsApp",
+                modalInvestorTitle: "Investors",
+                modalInvestorDesc: "For investors, philanthropists, impact investors, angels, government bodies, private entities, or individuals who are called to contribute to the nation's human resource health — whether mental or physical — please contact PIC-Farid (081514603581).",
+                modalPartnershipTitle: "Partnership",
+                modalPartnershipDesc: "We are open to various forms of strategic collaboration. Let's build a better mental and physical health ecosystem for the community, nation, and country.",
+                backToBlog: "Back to Blog",
+                badgeBlog: "Blog",
+                readTime: "4 min read",
+                articleTitle: "Online Adaptive Personal Therapy is More Flexible",
+                heroCardTitle: "Online Adaptive Personal Therapy",
+                heroCardDesc: "Collaboration of human intelligence and AI for holistic physical and mental health analysis from body scans, psychological profiling, and more.",
+                introP1: "Nowadays, many people are looking for more flexible solutions to maintain mental health. Online Adaptive Personal Therapy is a top choice because it provides non-rigid guidance, accessible anytime, adapting to dynamic user needs.",
+                introP2: "Through Sikutaki's AI ecosystem, online therapy is no longer just standard text messaging. The system analyzes emotional dynamics, daily stress responses, and vital body indicators to provide precise, real-time intervention.",
+                tocTitle: "Table of Contents",
+                toc1: "1. The Power of Flexibility in Modern Digital Therapy",
+                toc2: "2. An Adaptive System That Grows with You",
+                toc3: "3. Holistic Physical & Emotional Guidance Anytime",
+                toc4: "4. Practical Steps to Start Adaptive Therapy with Sikutaki",
+                sec1Title: "The Power of Flexibility in Modern Digital Therapy",
+                sec1Desc: "Conventional therapy often faces constraints of rigid schedules and locations. Adaptive digital therapy overcomes this by offering support whenever you need to share or regulate emotions.",
+                sec1Sub1Title: "Accessibility Without Boundaries",
+                sec1Sub1Desc: "No need to wait for weekly sessions to manage stress. Get guidance exactly when you need emotional support or calming exercises.",
+                sec1Sub2Title: "Flexible, Non-Judgmental Counseling Style",
+                sec1Sub2Desc: "Interactions are designed to feel natural, empathetic, and judgment-free, encouraging users to express themselves openly.",
+                sec2Title: "An Adaptive System That Grows with You",
+                sec2Desc: "Adaptive therapy avoids a one-size-fits-all model. Breathing exercises, reflection journals, and action plans continuously update according to your daily stress and fitness trends.",
+                sec3Title: "Holistic Physical & Emotional Guidance Anytime",
+                sec3Desc: "Mental health cannot be separated from physical well-being. Sikutaki links sleep quality, activity patterns, and biometric scans for complete recovery guidance.",
+                sec4Title: "Practical Steps to Start Adaptive Therapy with Sikutaki",
+                sec4Desc: "Begin your holistic health journey today. Leverage Sikutaki's biometric scans and AI analysis for flexible, accurate, personalized therapy.",
+                contactLabel: "Support & Services:",
+                startTherapy: "Start Therapy Now →",
+                heroBadge: "🌱 HUMAN-AI RESONANCE DIAGNOSTIC & THERAPY",
+                articleDate: "Apr 7, 2026",
+                copyRight: "© 2026 SIKUTAKI.AI. All rights reserved.",
+                footPrivacy: "Privacy Policy",
+                footTerms: "Terms & Conditions",
+                footContact: "Contact Support",
+            },
+            es: {
+                navFeatures: "Características",
+                navWorkflow: "Flujo de Trabajo",
+                testiBadge: "Testimonials",
+                navPricing: "Planes",
+                navBlog: "Blog",
+                navLogin: "Iniciar Sesión",
+                navCollaboration: "Colaboración",
+                collabInvestor: "Inversionistas",
+                collabPartnership: "Asociación",
+                contactWa: "Contactar vía WhatsApp",
+                modalInvestorTitle: "Inversionistas",
+                modalInvestorDesc: "Para inversores, filántropos, ángeles, entidades gubernamentales o privadas interesadas en contribuir a la salud de los recursos humanos, comuníquese con PIC-Farid (081514603581).",
+                modalPartnershipTitle: "Asociación",
+                modalPartnershipDesc: "Estamos abiertos a diversas formas de colaboración estratégica para construir un mejor ecosistema de salud mental y física.",
+                backToBlog: "Volver al Blog",
+                badgeBlog: "Blog",
+                readTime: "4 min de lectura",
+                articleTitle: "Terapia Personal Adaptativa en Línea Más Flexible",
+                heroCardTitle: "Terapia Personal Adaptativa en Línea",
+                heroCardDesc: "Colaboración de inteligencia humana e IA para análisis holístico de salud física y mental.",
+                introP1: "Hoy en día, muchas personas buscan soluciones flexibles para mantener la salud mental. La Terapia Personal Adaptativa en Línea se adapta a las necesidades dinámicas del usuario.",
+                introP2: "Mediante la IA de Sikutaki, la terapia analiza la dinámica emocional y las respuestas al estrés para interacciones en tiempo real.",
+                tocTitle: "Tabla de Contenido",
+                toc1: "1. La Fuerza de la Flexibilidad en la Terapia Digital Moderna",
+                toc2: "2. Un Sistema Adaptativo que Crece Contigo",
+                toc3: "3. Guía Holística Física y Emocional en Cualquier Momento",
+                toc4: "4. Pasos Prácticos para Iniciar Terapia Adaptativa con Sikutaki",
+                sec1Title: "La Fuerza de la Flexibilidad en la Terapia Digital Moderna",
+                sec1Desc: "La terapia adaptativa supera limitaciones de tiempo y horario, estando disponible cuando necesitas regulación emocional.",
+                sec1Sub1Title: "Accesibilidad sin Fronteras",
+                sec1Sub1Desc: "Accede al soporte en el momento exacto en que necesitas apoyo moral o calma.",
+                sec1Sub2Title: "Consejería Flexible y Libre de Juicios",
+                sec1Sub2Desc: "Interacciones empáticas diseñadas para brindarte libertad de expresión total.",
+                sec2Title: "Un Sistema Adaptativo que Crece Contigo",
+                sec2Desc: "La terapia ajusta ejercicios de respiración y diarios según tus niveles diarios de estrés.",
+                sec3Title: "Guía Holística Física y Emocional en Cualquier Momento",
+                sec3Desc: "Conecta hábitos de sueño y datos biométricos para una orientación integral de salud.",
+                sec4Title: "Pasos Prácticos para Iniciar Terapia Adaptativa con Sikutaki",
+                sec4Desc: "Comienza tu viaje holístico usando el análisis avanzado e intuitivo de Sikutaki.",
+                contactLabel: "Soporte y Servicios:",
+                startTherapy: "Iniciar Terapia Ahora →",
+                heroBadge: "🌱 DIAGNÓSTICO Y TERAPIA DE RESONANCIA HUMANA-IA",
+                articleDate: "7 abr 2026",
+                copyRight: "© 2026 SIKUTAKI.AI. Todos los derechos reservados.",
+                footPrivacy: "Política de Privacidad",
+                footTerms: "Términos y Condiciones",
+                footContact: "Soporte de Contacto",
+            },
+            pt: {
+                navFeatures: "Recursos",
+                navWorkflow: "Fluxo de Trabalho",
+                testiBadge: "Testimonials",
+                navPricing: "Planos",
+                navBlog: "Blog",
+                navLogin: "Entrar / Iniciar",
+                navCollaboration: "Colaboração",
+                collabInvestor: "Investidores",
+                collabPartnership: "Parceria",
+                contactWa: "Contato via WhatsApp",
+                modalInvestorTitle: "Investidores",
+                modalInvestorDesc: "Para investidores, filantropos, anjos, órgãos governamentais ou entidades privadas que desejam contribuir para a saúde de recursos humanos, entre em contato com PIC-Farid (081514603581).",
+                modalPartnershipTitle: "Parceria",
+                modalPartnershipDesc: "Estamos abertos a várias formas de colaboração estratégica para construir um ecossistema de saúde melhor.",
+                backToBlog: "Voltar ao Blog",
+                badgeBlog: "Blog",
+                readTime: "4 min de leitura",
+                articleTitle: "Terapia Pessoal Adaptativa Online Mais Flexível",
+                heroCardTitle: "Terapia Pessoal Adaptativa Online",
+                heroCardDesc: "Colaboração entre inteligência humana e IA para análise holística de saúde física e mental.",
+                introP1: "Hoje em dia, muitas pessoas buscam soluções flexíveis para manter a saúde mental. A Terapia Pessoal Adaptativa Online oferece suporte flexível e contínuo.",
+                introP2: "A Sikutaki utiliza IA para interpretar dinâmicas emocionais e indicadores vitais em tempo real.",
+                tocTitle: "Índice",
+                toc1: "1. O Poder da Flexibilidade na Terapia Digital Moderna",
+                toc2: "2. Um Sistema Adaptativo que Cresce Com Você",
+                toc3: "3. Orientação Holística Física e Emocional a Qualquer Momento",
+                toc4: "4. Passos Práticos para Iniciar a Terapia Adaptativa na Sikutaki",
+                sec1Title: "O Poder da Flexibilidade na Terapia Digital Moderna",
+                sec1Desc: "Supera os horários rígidos da terapia tradicional, oferecendo escuta quando você precisa.",
+                sec1Sub1Title: "Acessibilidade Sem Fronteiras",
+                sec1Sub1Desc: "Receba orientação e apoio emocional exatamente no momento de necessidade.",
+                sec1Sub2Title: "Acolhimento Flexível e Sem Julgamentos",
+                sec1Sub2Desc: "Interações naturais e empáticas que proporcionam espaço seguro para desabafo.",
+                sec2Title: "Um Sistema Adaptativo que Cresce Com Você",
+                sec2Desc: "Ajusta rotinas e exercícios de respiração com base nas suas variações diárias de estresse.",
+                sec3Title: "Orientação Holística Física e Emocional a Qualquer Momento",
+                sec3Desc: "Integra sono, biometria e análise em um plano completo de recuperação e equilíbrio.",
+                sec4Title: "Passos Práticos para Iniciar a Terapia Adaptativa na Sikutaki",
+                sec4Desc: "Inicie sua jornada holística com o suporte inteligente da Sikutaki agora.",
+                contactLabel: "Suporte & Serviços:",
+                startTherapy: "Iniciar Terapia Agora →",
+                heroBadge: "🌱 DIAGNÓSTICO E TERAPIA DE RESSONÂNCIA HUMANA-IA",
+                articleDate: "7 abr 2026",
+                copyRight: "© 2026 SIKUTAKI.AI. Todos os direitos reservados.",
+                footPrivacy: "Política de Privacidade",
+                footTerms: "Termos e Condições",
+                footContact: "Suporte de Contato",
+            }
+        };
+
+        function changeLanguage(lang) {
+            localStorage.setItem('sikutaki-lang', lang);
+            const t = translations[lang] || translations['id'];
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                if (t[key]) {
+                    el.textContent = t[key];
+                }
+            });
+            document.documentElement.lang = lang;
+        }
+
+        function toggleTheme() {
+            const htmlEl = document.documentElement;
+            const themeIcon = document.getElementById('themeIcon');
+            if (htmlEl.classList.contains('dark')) {
+                htmlEl.classList.remove('dark');
+                if (themeIcon) themeIcon.textContent = '☀️';
+                localStorage.setItem('sikutaki-theme', 'light');
+            } else {
+                htmlEl.classList.add('dark');
+                if (themeIcon) themeIcon.textContent = '🌙';
+                localStorage.setItem('sikutaki-theme', 'dark');
+            }
+        }
+
+        function toggleCollabMenu(event) {
+            event.stopPropagation();
+            const dropdown = document.getElementById('collabDropdown');
+            dropdown.classList.toggle('hidden');
+        }
+
+        window.addEventListener('click', () => {
+            const dropdown = document.getElementById('collabDropdown');
+            if (dropdown && !dropdown.classList.contains('hidden')) {
+                dropdown.classList.add('hidden');
+            }
+        });
+
+        function openCollabModal(type) {
+            const modal = document.getElementById('collabModal');
+            const titleEl = document.getElementById('modalTitle');
+            const descEl = document.getElementById('modalDesc');
+            
+            const currentLang = localStorage.getItem('sikutaki-lang') || 'id';
+            const t = translations[currentLang] || translations['id'];
+
+            if (type === 'investor') {
+                titleEl.textContent = t.modalInvestorTitle;
+                descEl.textContent = t.modalInvestorDesc;
+            } else if (type === 'partnership') {
+                titleEl.textContent = t.modalPartnershipTitle;
+                descEl.textContent = t.modalPartnershipDesc;
+            }
+
+            modal.classList.remove('hidden');
+            document.getElementById('collabDropdown').classList.add('hidden');
+        }
+
+        function closeCollabModal() {
+            document.getElementById('collabModal').classList.add('hidden');
+        }
+
+        function movePill(element) {
+            const indicator = document.getElementById('navPillIndicator');
+            if (!indicator || !element) return;
+            
+            const left = element.offsetLeft;
+            const width = element.offsetWidth;
+            
+            indicator.style.left = `${left}px`;
+            indicator.style.width = `${width}px`;
+            indicator.style.opacity = '1';
+        }
+
+        function resetBlogPill() {
+            const blogMenu = document.querySelector('nav a[href="/blog"]');
+            if (blogMenu) {
+                movePill(blogMenu);
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const savedTheme = localStorage.getItem('sikutaki-theme');
+            const htmlEl = document.documentElement;
+            const themeIcon = document.getElementById('themeIcon');
+            
+            if (savedTheme === 'dark') {
+                htmlEl.classList.add('dark');
+                if (themeIcon) themeIcon.textContent = '🌙';
+            } else {
+                htmlEl.classList.remove('dark');
+                if (themeIcon) themeIcon.textContent = '☀️';
+            }
+
+            const savedLang = localStorage.getItem('sikutaki-lang') || 'id';
+            const langSelect = document.getElementById('langSelect');
+            if (langSelect) langSelect.value = savedLang;
+            changeLanguage(savedLang);
+
+            const blogMenu = document.querySelector('nav a[href="/blog"]');
+            if (blogMenu) {
+                setTimeout(() => movePill(blogMenu), 100);
+            }
+        });
+    </script>
+    <script src="{{ url_for('static', filename='js/sikutaki-ui.js') }}"></script>
+</body>
+</html>
